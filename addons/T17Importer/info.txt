@@ -1,0 +1,211 @@
+============================
+ Superfrog file format info
+ Dennis "Exl" Meuwissen
+ 7 may 2008
+============================
+
+
+Bit\byte swapping
+==================
+The Amiga computer uses a Motorola 680x0 CPU, which stores it's values in big endian format. Intel x86 CPUs store
+data in little endian format. So when dealing with data bigger than 1 byte, the bytes need to be swapped. For example
+a pair of bytes describing which tile and what special it has is stored in a 2 byte integer value. Keep this in mind
+when dealing with Superfrog's data files. The descriptions here assume all bytes have been swapped already.
+
+Froggy uses a bitstream reader which swaps the bits around. If you request 4 bits, it will return the *last* 4 bits of the
+current byte, in reverse order.
+
+
+Graphics
+=========
+Graphics can be full-screen bitmaps, used for the world ending pictures (The Golden Key, Colin the Troll, etc.),
+but can also store sprites and for example the slotmachine graphics.
+
+They are arranged as bitplanes (as is often the case in Amiga graphics):
+
+Bitplane 0
+    Row 0 of [width] bits
+    Row 1
+    Row 2
+    ...
+    Row [height]
+Bitplane 1
+    ...
+Bitplane [bitplanes]
+
+Xor'ing the bits of each bitplane into a single value results in a color index into a palette. After the
+bitplane data are 64 bytes that define the palette for the image, if the image has a palette at all (see
+"Graphics information"). Each color takes 2 bytes:
+
+Bit 0-3     Always zero
+Bit 4-7     Red value
+Bit 8-11    Green value
+Bit 12-15   Blue value
+
+Multiplying the red, green or blue values by 17 will give a color in the 0 to 255 range.
+
+
+Graphics information
+=====================
+Name                    Width   Height  Planes  Palette     Other
+-----------------------------------------------------------------------------------------------------------------
+World ending\Tables     320     256     5       Yes
+World loading           320     352     5       Yes
+Slotmachine + anims     320     256     6       No
+World sprites           320     320     5       No
+Superfrog sprites       320     384     4       No
+Team 17 logo            640     512     4       Unknown     Image data starts at byte 39, and there is some
+                                                            data after the image.
+Superfrog title         320     256     5\6?    No          Top part of the image seems to be different.
+Tile data               16      16      5       No          840 tiles are stored after each other. The tileset
+                                                            seems to be designed for a 20-tile width display in
+                                                            an editor.
+Tile collision data     320     672     1       No          A 1-bit "overlay" of the tile graphics for collision
+                                                            detection purposes.
+
+
+Level data
+===========
+The layout of a level file is very similar to a (R)IFF file, with chunks, chunk lengths and chunk contents.
+First is always a 4-byte string indicating the name of the chunk, then a long integer indicating the length
+of the chunk, then the chunk's data.
+
+The following chunks are present in all of Superfrog's level files:
+
+Id      Guessed name    Description
+----------------------------------------------------------------------------------------------------------------
+T7MP    Team 17 Map     Contains the length of the entire file, including this chunk.
+XBLK    X Block         Number of tiles on the map horizontally (always 300)
+YBLK    Y Block         Number of tiles on the map vertically (always 85)
+VERS    Version         Always zeroes.
+COM1    Player 1        Always zeroes.
+COM2    Player 2        Always zeroes.
+REMX    ?               Unknown, varies per level.
+REMY    ?               Unknown, varies per level.
+IFFP    IFF Palette     Starts with the string SDIFF:L1BM-IFF, after which there are 50 bytes of zeroes.
+PALA    Palette A       Starts with the string SDIFF:L1BM-IFF, after which there are 50 bytes of zeroes, after
+                        which the level's palette data follows. The palette is arranged the same way as it is
+                        appended to bitplane images. After this data, another 64 zero bytes follow.
+PALB    Palette B       Like palette A, but all zeroes instead.
+PALC    Palette C       Like palette A, but all zeroes instead.
+PALD    Palette D       Like palette A, but all zeroes instead.
+COLS    Colors          Always contains zeroes.
+CCCL    ?               Contains 64 bytes of unknown data. This seems to differ very slightly per level.
+IFFC    ?               Bitsets for each tile. First 6 bits are the default special for each tile in the tilemap.
+                        The other 10 bits are unused.
+BODY    Body            The actual level data. From left to right, top to bottom, the first 6 bits are the tile's
+                        special. The last 10 bits are an index into the 16x16 tile graphics. See Tile specials.
+
+It's not unthinkable that the Superfrog "engine" or parts thereof had been used before in games like Project-X,
+which might have the similar level format, with more of the chunks actually being used.
+
+
+Tile specials
+==============
+The following is a list of special values that can be associated with a tile. Enemies vary per world, see "Enemies".
+Project F uses a different list to place the enemies.
+
+N   Description                             Project F
+------------------------------------------------------------
+0   Nothing
+1   Enemy 1 or Witch boss
+2   Enemy 2                                 Rocket
+3   Enemy 3                                 Cluster
+4   Jumppad type 1                          Split rockets
+5   Jumppad type 2 (other background)       Shuttle
+6   Lethal (spikes, fire, etc.)             Shooter
+7   Jumppad sideways                        UFO Lander
+8   Coin                                    Unknown
+9   "Secret" coin                           Flying alien
+10  Enemy 4                                 Unknown
+11  Enemy 5                                 Unknown
+12  Enemy 6                                 Bar moving down
+13  Enemy 7                                 Bar moving up
+14  Enemy 8                                 Lightbulb
+15  Enemy 9                                 Ladybug
+16  Enemy 10
+17  Enemy 11
+18  Enemy 12
+19  Enemy 13
+20  Enemy 14
+21  Enemy 15
+22  Enemy 16
+23  Enemy 17
+24  Enemy 18
+25  Enemy 19
+26  Enemy 20
+27  Enemy 21
+28  Enemy 22
+29  Level exit X image
+30  Not used
+31  Not used
+32  Unknown, used once in w2l3, leftover?
+33  Not used
+34  Not used
+35  Not used
+36  Retracting platform (not in world 4)
+37  Stop walking enemies
+38  Secret passage
+39  Big sucking thing entrance
+40  Big sucking thing suction vertical
+41  Big sucking thing stop (vertical)
+42  Big sucking thing suction horizontal
+43  Big sucking thing stop (horizontal)
+44  Thruster pad
+45  Coin dispenser (jump to get coins)
+46  Wet push left
+47  Wet push right
+48  Switch\door combo 1
+49  Switch\door combo 2
+50  Switch\door combo 3
+51  Switch\door combo 4
+52  Switch\door combo 5?
+53  Player start
+54  Level exit
+55  This tile can be picked up              Level end
+56  Slimy\wet\icy
+57  Water (swimmable)
+58  Not used
+59  Not used
+60  Not used
+61  Impassible
+62  Player can pass these tiles from below
+63  These tiles can be walked upon
+
+
+Enemies
+========
+    World 1         World 2             World 3             World 4                 World 5             World 6
+-----------------------------------------------------------------------------------------------------------------------------
+1   Bee             Bat                 -                   Bat                     Icefrog left        -
+2   Blob            Ghost left          -                   Ghost left              Icefrog right       -
+3   Blob moving     Ghost right         -                   Ghost right             -                   -
+4   Plant           Fire (anim)         -                   Torch (anim)            Icycle              -
+5   Plane           Spider              -                   Fire bowl (anim)        Water drops         -
+6   Snail           Slime               -                   Snake                   Snowball            Hanging sentry
+7   Bird left       Fireplace (anim)    -                   Mummy                   Snowman             Gassy blob
+8   Bird right      Chandelier (anim)   Water end lt. anim  Mummy stop              Snowman stop        Flying blob
+9   Porcupine       Torch (anim)        Water end rt. anim  Crusher top-bottom      Torch (anim)        Blue Robot
+10  Bobcat          Moving spikes       Bouncing ball       Crusher bottom-top      Crusher bottom-top  Yellow Robot (fires)
+11  Bobcat stop     Chain 'n Ball       Exit sign (anim)    Chain 'n Ball           Chain 'n Ball       Chain 'n Ball
+12  Tree eyes       Gun right-left      Gun right-left      Gun right-left          Gun right-left      Gun right-left
+13  -               Gun left-right      Gun left-right      Gun left-right          Gun left-right      Gun left-right
+14  -               Moving spikes 2     Snake               Arrowgun right-left     Penguin             Lil' Robot
+15  -               Knight              Fish                Arrowgun left-right     Penguin stop        -
+16  -               -                   -                   Ball spawner right      Eyes in the dark    -
+17  -               -                   Hot water drip      Ball remover            -                   -
+18  -               -                   Water (anim)        Ball spawner left       Water (anim)        -
+19  -               -                   Turtle (spiked)     Spikes                  -                   -
+20  -               -                   Turtle              Evil Eye                -                   -
+21  -               -                   Chain 'n Ball       Retracting platform     -                   -
+22  -               -                   Ladybug             -                       -                   -
+
+Notes
+ - World 3's water end anims are not always used in maps where they should have been. I haven't found the rt. (right) variant yet,
+   I only suspect it would be right below the left variant.
+ - In world 3, Enemy 1 is used twice, but is never seen. Possibly a leftover.
+
+
+Music
+======
+Music is in the Mod ProTracker Packed format, recognizable by the P41A magic bytes.
