@@ -1,4 +1,4 @@
-tool
+@tool
 extends EditorPlugin
 
 var tilemap_import = null

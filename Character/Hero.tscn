@@ -1,6 +1,6 @@
 [gd_scene load_steps=19 format=2]
 
-[ext_resource path="res://Character/HERO2.png" type="Texture" id=1]
+[ext_resource path="res://Character/HERO2.png" type="Texture2D" id=1]
 [ext_resource path="res://Character/Hero.gd" type="Script" id=2]
 
 [sub_resource type="RectangleShape2D" id=1]
@@ -99,14 +99,14 @@ animations = [ {
 "speed": 25.0
 } ]
 
-[node name="Hero" type="KinematicBody2D"]
+[node name="Hero" type="CharacterBody2D"]
 script = ExtResource( 2 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2( 16, -24 )
 shape = SubResource( 1 )
 
-[node name="AnimatedSprite" type="AnimatedSprite" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 frames = SubResource( 16 )
 animation = "Right_Run"
 offset = Vector2( 16, -24 )

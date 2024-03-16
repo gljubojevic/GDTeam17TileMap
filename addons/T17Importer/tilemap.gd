@@ -1,35 +1,35 @@
-tool
+@tool
 extends EditorImportPlugin
 
 enum Presets { DEFAULT }
 
-func get_importer_name():
+func _get_importer_name():
 	return "team17.tilemap"
 
-func get_visible_name():
+func _get_visible_name():
 	return "Team 17 Tilemap"
 
-func get_recognized_extensions():
+func _get_recognized_extensions():
 	return ["t7mp"]
 
-func get_save_extension():
+func _get_save_extension():
 	return "tscn"
 
-func get_resource_type():
+func _get_resource_type():
 	return "PackedScene"
 
-func get_preset_count():
+func _get_preset_count():
 	return Presets.size()
 
-func get_preset_name(preset):
-	match preset:
+func _get_preset_name(preset_index):
+	match preset_index:
 		Presets.DEFAULT:
 			return "Default"
 		_:
 			return "Unknown"
 
-func get_import_options(preset):
-	match preset:
+func _get_import_options(path, preset_index):
+	match preset_index:
 		Presets.DEFAULT:
 			return [
 				{"name": "TileSize", "default_value": 16, "hint_string": "pixel size of tile"}
@@ -46,21 +46,21 @@ func hunkSize(f:File):
 
 var Xblk:int				# tilemap size X in tiles
 var Yblk:int				# tilemap size Y in tiles
-var iffP:String			# IFF paletter file
-var palAFile:String		# Palette A filename
+var iffP:String				# IFF paletter file
+var palAFile:String			# Palette A filename
 var palAColors:Array		# Palette A colors
-var palBFile:String		# Palette B filename
+var palBFile:String			# Palette B filename
 var palBColors:Array		# Palette B colors
-var palCFile:String		# Palette C filename
+var palCFile:String			# Palette C filename
 var palCColors:Array		# Palette C colors
-var palDFile:String		# Palette D filename
+var palDFile:String			# Palette D filename
 var palDColors:Array		# Palette D colors
-var body:Array 			# tilemap tiles body
-var iffC:Array			# tileset attributes
-var cccL:Array			# ?
-var tileMapBitmap:String # bitmap file for tilemap from
+var body:Array 				# tilemap tiles body
+var iffC:Array				# tileset attributes
+var cccL:Array				# ?
+var tileMapBitmap:String	# bitmap file for tilemap from
 
-func readInt16Array(b:PoolByteArray):
+func readInt16Array(b:PackedByteArray):
 	var dta:Array
 	var i:int = 0
 	while i < b.size():
@@ -76,14 +76,14 @@ func print_DebugArray(ar:Array):
 	for i in range(len(ar)):
 		print_debug(fmt % [i, ar[i], ar[i]])
 
-func getPaletteFileName(b:PoolByteArray, pal:String):
-	var fn = b.subarray(0, 63)
+func getPaletteFileName(b:PackedByteArray, pal:String):
+	var fn = b.slice(0, 63)
 	var name = fn.get_string_from_ascii()
 	print_debug("%s file: %s" % [pal, name])
 	return name
 
-func getPaletteColors(b:PoolByteArray, pal:String):
-	var p = b.subarray(64, b.size()-1)
+func getPaletteColors(b:PackedByteArray, pal:String):
+	var p = b.slice(64, b.size()-1)
 	var col = readInt16Array(p)
 	print_DebugArray(col)
 	return col
@@ -252,7 +252,7 @@ func createTileMap(name, tileSize, ts:TileSet):
 		tm.set_cell(cell_x, cell_y, tileIndex)
 	return tm
 
-func import(source_file, save_path, options, r_platform_variants, r_gen_files):
+func _import(source_file, save_path, options, platform_variants, gen_files):
 	var name = source_file.get_file().get_basename()
 	# root node for scene
 	var root = Node2D.new()
@@ -284,4 +284,4 @@ func import(source_file, save_path, options, r_platform_variants, r_gen_files):
 	if err != OK:
 		return err
 
-	return ResourceSaver.save("%s.%s" % [save_path, get_save_extension()], scene)
+	return ResourceSaver.save("%s.%s" % [save_path, _get_save_extension()], scene)
