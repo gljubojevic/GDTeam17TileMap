@@ -3,7 +3,7 @@ extends CharacterBody2D
 const GRAVITY = 200.0
 const WALK_SPEED = 200
 
-var velocity = Vector2()
+#var velocity = Vector2()
 
 # Called when the node enters the scene tree for the first time.
 func _ready():

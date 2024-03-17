@@ -21,6 +21,9 @@ func _get_resource_type():
 func _get_preset_count():
 	return Presets.size()
 
+func _get_option_visibility(path, option_name, options):
+	return true
+
 func _get_preset_name(preset_index):
 	match preset_index:
 		Presets.DEFAULT:
@@ -37,11 +40,14 @@ func _get_import_options(path, preset_index):
 		_:
 			return[]
 
-func hunkName(f:File):
+func _get_import_order():
+	return ResourceImporter.IMPORT_ORDER_SCENE
+
+func hunkName(f:FileAccess):
 	var b = f.get_buffer(4)
 	return b.get_string_from_ascii()	
 
-func hunkSize(f:File):
+func hunkSize(f:FileAccess):
 	return f.get_32()
 
 var Xblk:int				# tilemap size X in tiles
@@ -60,7 +66,7 @@ var iffC:Array				# tileset attributes
 var cccL:Array				# ?
 var tileMapBitmap:String	# bitmap file for tilemap from
 
-func readInt16Array(b:PackedByteArray):
+func readUInt16Array(b:PackedByteArray):
 	var dta:Array
 	var i:int = 0
 	while i < b.size():
@@ -77,24 +83,23 @@ func print_DebugArray(ar:Array):
 		print_debug(fmt % [i, ar[i], ar[i]])
 
 func getPaletteFileName(b:PackedByteArray, pal:String):
-	var fn = b.slice(0, 63)
+	var fn = b.slice(0, 64)
 	var name = fn.get_string_from_ascii()
 	print_debug("%s file: %s" % [pal, name])
 	return name
 
 func getPaletteColors(b:PackedByteArray, pal:String):
-	var p = b.slice(64, b.size()-1)
-	var col = readInt16Array(p)
+	var p = b.slice(64, b.size())
+	var col = readUInt16Array(p)
 	print_DebugArray(col)
 	return col
 
 func parseTileMap(source_file):
 	print_debug("Loading Team 17 tilemap: ", source_file)
-	var f = File.new()
-	var err = f.open(source_file, File.READ)
-	if err != OK:
-		return err
-	f.endian_swap = true # reading amiga format
+	var f = FileAccess.open(source_file, FileAccess.READ)
+	if f == null:
+		return FileAccess.get_open_error()
+	f.big_endian = true # reading amiga format
 	
 	var hName = hunkName(f)
 	if "T7MP" != hName:
@@ -138,15 +143,15 @@ func parseTileMap(source_file):
 				palDColors = getPaletteColors(b, hName)
 			"CCCL":
 				var b = f.get_buffer(hSize)
-				cccL = readInt16Array(b)
+				cccL = readUInt16Array(b)
 				print_DebugArray(cccL)
 			"IFFC":
 				var b = f.get_buffer(hSize)
-				iffC = readInt16Array(b)
+				iffC = readUInt16Array(b)
 				print_debug("IFFC tiles:", len(iffC))
 			"BODY":
 				var b = f.get_buffer(hSize)
-				body = readInt16Array(b)
+				body = readUInt16Array(b)
 			_:
 				print_debug("Skipping unused...")
 				f.seek(f.get_position() + hSize)
@@ -174,13 +179,13 @@ func loadTileSetTexture(path):
 		printerr(err)
 		return null
 	var tx = ImageTexture.new()
-	tx.storage = ImageTexture.STORAGE_RAW
 	tx.create_from_image(img)
-	tx.flags = 0	# must be no flags to get crisp image
 	return tx
 
 func createTileSet(tx:ImageTexture, tileSize:int):
 	var ts = TileSet.new()
+	ts.tile_shape = TileSet.TILE_SHAPE_SQUARE
+	ts.tile_size = Vector2i(tileSize,tileSize)
 	ts.set_meta("IFFC", iffC)		# Add tile attributes
 	var w = tx.get_width()
 	var h = tx.get_height()
@@ -232,14 +237,13 @@ func createTileSet(tx:ImageTexture, tileSize:int):
 
 func createTileMap(name, tileSize, ts:TileSet):
 	var tm = TileMap.new()
-	tm.set_name(name)
-	tm.cell_y_sort = true
-	tm.mode = TileMap.MODE_SQUARE
-	tm.cell_tile_origin = TileMap.TILE_ORIGIN_TOP_LEFT
-	tm.cell_half_offset = TileMap.HALF_OFFSET_DISABLED
-	tm.cell_size = Vector2(tileSize,tileSize)
+	#tm.set_name(name)
+	#tm.cell_y_sort = true
+	#tm.cell_tile_origin = TileMap.TILE_ORIGIN_TOP_LEFT
+	#tm.cell_half_offset = TileMap.HALF_OFFSET_DISABLED
 	tm.tile_set = ts
-
+	print_debug("TileMap:", name, " Layers:", tm.get_layers_count())
+	
 	var tiles = Xblk * Yblk
 	for i in tiles:
 		var cell_x = i % Xblk
@@ -276,7 +280,7 @@ func _import(source_file, save_path, options, platform_variants, gen_files):
 	# tilemap
 	var tm = createTileMap(name + "_tilemap", options["TileSize"], ts)
 	root.add_child(tm)
-	tm.set_owner(root)
+	#tm.set_owner(root)
 	
 	# create scene for save
 	var scene = PackedScene.new()
@@ -284,4 +288,5 @@ func _import(source_file, save_path, options, platform_variants, gen_files):
 	if err != OK:
 		return err
 
-	return ResourceSaver.save("%s.%s" % [save_path, _get_save_extension()], scene)
+	return ResourceSaver.save(scene, "%s.%s" % [save_path, _get_save_extension()])
+	

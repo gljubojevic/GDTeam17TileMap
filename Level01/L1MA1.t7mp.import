@@ -2,12 +2,13 @@
 
 importer="team17.tilemap"
 type="PackedScene"
-path="res://.import/L1MA1.t7mp-0d17c3e71dcbabafc678c3e0c2228134.tscn"
+uid="uid://bivqwuvp0nc8f"
+path="res://.godot/imported/L1MA1.t7mp-0d17c3e71dcbabafc678c3e0c2228134.tscn"
 
 [deps]
 
 source_file="res://Level01/L1MA1.t7mp"
-dest_files=[ "res://.import/L1MA1.t7mp-0d17c3e71dcbabafc678c3e0c2228134.tscn" ]
+dest_files=["res://.godot/imported/L1MA1.t7mp-0d17c3e71dcbabafc678c3e0c2228134.tscn"]
 
 [params]
 
