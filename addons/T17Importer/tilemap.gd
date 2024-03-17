@@ -1,6 +1,9 @@
 @tool
 extends EditorImportPlugin
 
+const T17_TILE_INDEX_MASK = 0x3ff
+const T17_TILE_ATTR_SHIFT = 10
+
 enum Presets { DEFAULT }
 
 func _get_importer_name():
@@ -94,8 +97,8 @@ func getPaletteColors(b:PackedByteArray, pal:String):
 	print_DebugArray(col)
 	return col
 
-func parseTileMap(source_file):
-	print_debug("Loading Team 17 tilemap: ", source_file)
+func parseTileMap(source_file:String):
+	print_debug("Parsing Team 17 tilemap: ", source_file)
 	var f = FileAccess.open(source_file, FileAccess.READ)
 	if f == null:
 		return FileAccess.get_open_error()
@@ -156,91 +159,101 @@ func parseTileMap(source_file):
 				print_debug("Skipping unused...")
 				f.seek(f.get_position() + hSize)
 	f.close()
-	print_debug("Loading DONE Team 17 tilemap: ", source_file)
+	print_debug("Parsing DONE Team 17 tilemap: ", source_file)
 
 	return OK
 
-func getTileSetBitmapName(source_file):
-	# remove volume
-	var parts = iffP.rsplit(":", false, 1)
+func getTileSetBitmapName(source_file:String):
+	var parts = iffP.rsplit(":", false, 1)	# remove volume
 	if len(parts) != 2:
 		return ERR_FILE_BAD_PATH
-	# check extension
-	if !parts[1].ends_with("-IFF"):
+	if !parts[1].ends_with("-IFF"):	# check extension
 		return ERR_FILE_BAD_PATH
 	tileMapBitmap = source_file.get_base_dir() + "/" + parts[1].replace("-IFF", ".png")
 	return OK
 
-# loads tileset bitmap as texture
-func loadTileSetTexture(path):
-	var img = Image.new()
-	var err = img.load(path)
-	if err != OK:
-		printerr(err)
+# loads tileset bitmap as texture atlas
+func loadTileSetAtlasSource(path: String, tileSize:int):
+	if not ResourceLoader.exists(path, "Image"):
 		return null
-	var tx = ImageTexture.new()
-	tx.create_from_image(img)
-	return tx
+	
+	var tx: Texture2D = load(path)
+	var w = tx.get_width()
+	var h = tx.get_height()
+	print_debug("Tileset texture atlas size:",w , ",", h, "px")
+	var tilesX:int = w / tileSize
+	var tilesY:int = h / tileSize
+	print_debug("Tileset texture atlas tiles:", tilesX, ",", tilesY)
 
-func createTileSet(tx:ImageTexture, tileSize:int):
+	var tas = TileSetAtlasSource.new()
+	tas.margins = Vector2i(0,0)
+	tas.separation = Vector2i(0,0)
+	tas.use_texture_padding = false # NOTE: possible lines between tiles
+	tas.texture_region_size = Vector2i(tileSize,tileSize)
+	tas.texture = tx
+	# init all tiles in atlas 
+	for y in tilesY:
+		for x in tilesX:
+			tas.create_tile(Vector2i(x,y))
+	return tas
+
+func createTileSet(tas:TileSetAtlasSource, tileSize:int):
 	var ts = TileSet.new()
 	ts.tile_shape = TileSet.TILE_SHAPE_SQUARE
 	ts.tile_size = Vector2i(tileSize,tileSize)
 	ts.set_meta("IFFC", iffC)		# Add tile attributes
-	var w = tx.get_width()
-	var h = tx.get_height()
-	print_debug("Tileset texture size:",w , ",", h)
+	ts.add_source(tas)
+	var w = tas.texture_region_size.x
+	var h = tas.texture_region_size.y
+	#print_debug("Tileset texture atlas size:",w , ",", h)
 	var tilesX:int = w / tileSize
 	var tilesY:int = h / tileSize
-	print_debug("Tileset tiles:", tilesX, ",", tilesY)
+	#print_debug("Tileset tiles:", tilesX, ",", tilesY)
 	var tSize = Vector2(tileSize, tileSize)
 
 	var tShape = RectangleShape2D.new()
 	tShape.extents = Vector2(tileSize/2, tileSize/2)
 	var tShapeOffset = Vector2(tileSize/2, tileSize/2)
 
-	var tID = 0
-	for y in tilesY:
-		for x in tilesX:
-			ts.create_tile(tID)
-			ts.tile_set_texture(tID, tx)
-			var tPos = Vector2(x * tileSize, y * tileSize)
-			var region = Rect2(tPos, tSize)
-			ts.tile_set_region(tID, region)
+	#var tID = 0
+	#for y in tilesY:
+	#	for x in tilesX:
+	#		ts.create_tile(tID)
+	#		ts.tile_set_texture(tID, tx)
+	#		var tPos = Vector2(x * tileSize, y * tileSize)
+	#		var region = Rect2(tPos, tSize)
+	#		ts.tile_set_region(tID, region)
 
-			var tileDefAttr = iffC[tID]
-			# just check if there is some value
-			if (tileDefAttr & 0x3ff) != 0:
-				print_debug("Tile:", tID, " AttrValue:", tileDefAttr & 0x3ff)
-			# get attribute
-			tileDefAttr = tileDefAttr >> 10
-			match tileDefAttr:
-				0:
-					pass
-				6:
-					ts.tile_set_shape(tID, 6, tShape)
-					ts.tile_set_shape_offset(tID, 6, tShapeOffset)
-				55: # This tile can be picked up
-					ts.tile_set_shape(tID, 55, tShape)
-					ts.tile_set_shape_offset(tID, 55, tShapeOffset)
-				61:	# Impassible
-					ts.tile_set_shape(tID, 61, tShape)
-					ts.tile_set_shape_offset(tID, 61, tShapeOffset)
-				63: # These tiles can be walked upon
-					ts.tile_set_shape(tID, 63, tShape)
-					ts.tile_set_shape_offset(tID, 63, tShapeOffset)
-				_:
-					print_debug("TileID:", tID ," Unhandled default attr:", tileDefAttr)
-
-			tID += 1
+	#		var tileDefAttr = iffC[tID]
+	#		# just check if there is some value
+	#		if (tileDefAttr & T17_TILE_INDEX_MASK) != 0:
+	#			print_debug("Tile:", tID, " AttrValue:", tileDefAttr & T17_TILE_INDEX_MASK)
+	#		# get attribute
+	#		tileDefAttr = tileDefAttr >> T17_TILE_ATTR_SHIFT
+	#		match tileDefAttr:
+	#			0:
+	#				pass
+	#			6:
+	#				ts.tile_set_shape(tID, 6, tShape)
+	#				ts.tile_set_shape_offset(tID, 6, tShapeOffset)
+	#			55: # This tile can be picked up
+	#				ts.tile_set_shape(tID, 55, tShape)
+	#				ts.tile_set_shape_offset(tID, 55, tShapeOffset)
+	#			61:	# Impassible
+	#				ts.tile_set_shape(tID, 61, tShape)
+	#				ts.tile_set_shape_offset(tID, 61, tShapeOffset)
+	#			63: # These tiles can be walked upon
+	#				ts.tile_set_shape(tID, 63, tShape)
+	#				ts.tile_set_shape_offset(tID, 63, tShapeOffset)
+	#			_:
+	#				print_debug("TileID:", tID ," Unhandled default attr:", tileDefAttr)
+	#		tID += 1
 	return ts
+
 
 func createTileMap(name, tileSize, ts:TileSet):
 	var tm = TileMap.new()
-	#tm.set_name(name)
-	#tm.cell_y_sort = true
-	#tm.cell_tile_origin = TileMap.TILE_ORIGIN_TOP_LEFT
-	#tm.cell_half_offset = TileMap.HALF_OFFSET_DISABLED
+	tm.set_name(name)
 	tm.tile_set = ts
 	print_debug("TileMap:", name, " Layers:", tm.get_layers_count())
 	
@@ -248,12 +261,14 @@ func createTileMap(name, tileSize, ts:TileSet):
 	for i in tiles:
 		var cell_x = i % Xblk
 		var cell_y = int(i / Xblk)
-		var tileIndex = body[i] & 0x3ff
-		#var tileMapAttr = body[i] >> 10
-		#var tileDefAttr = iffC[tileIndex]
-		#if tileMapAttr != 0 && tileMapAttr != (tileDefAttr >> 10):
-		#	print_debug("Tile:", tileIndex, " MapAttr:", tileMapAttr, " DefAttr:", tileDefAttr >> 10)
-		tm.set_cell(cell_x, cell_y, tileIndex)
+		var tileIndex = body[i] & T17_TILE_INDEX_MASK
+		var tileMapAttr = body[i] >> T17_TILE_ATTR_SHIFT
+		var tileDefAttr = iffC[tileIndex]
+		#if tileMapAttr != 0 && tileMapAttr != (tileDefAttr >> T17_TILE_ATTR_SHIFT):
+		#	print_debug("Tile:", tileIndex, " MapAttr:", tileMapAttr, " DefAttr:", tileDefAttr >> T17_TILE_ATTR_SHIFT)
+		var cellCords = Vector2i(cell_x*tileSize, cell_y*tileSize)
+		var atlasCords = Vector2i(0,0) # TODO: read cord
+		tm.set_cell(0, cellCords, -1, atlasCords, 0)
 	return tm
 
 func _import(source_file, save_path, options, platform_variants, gen_files):
@@ -267,15 +282,18 @@ func _import(source_file, save_path, options, platform_variants, gen_files):
 	if err != OK:
 		return err
 
-	# create tileset
+	# create atlas source texture
 	err = getTileSetBitmapName(source_file)
 	if err != OK:
 		return err
 	
-	var tx = loadTileSetTexture(tileMapBitmap)
-	if null == tx:
+	var tas = loadTileSetAtlasSource(tileMapBitmap, options["TileSize"])
+	if null == tas:
+		printerr("File:", tileMapBitmap, ERR_FILE_NOT_FOUND)
 		return ERR_FILE_NOT_FOUND
-	var ts = createTileSet(tx, options["TileSize"])
+
+	# create tileset
+	var ts = createTileSet(tas, options["TileSize"])
 	
 	# tilemap
 	var tm = createTileMap(name + "_tilemap", options["TileSize"], ts)
