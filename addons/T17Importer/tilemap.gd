@@ -201,8 +201,10 @@ func createTileSet(tas:TileSetAtlasSource, tileSize:int):
 	var ts = TileSet.new()
 	ts.tile_shape = TileSet.TILE_SHAPE_SQUARE
 	ts.tile_size = Vector2i(tileSize,tileSize)
+	var srcID:int = ts.add_source(tas)
+	print_debug("Tileset atlas source ID:", srcID)
 	ts.set_meta("IFFC", iffC)		# Add tile attributes
-	ts.add_source(tas)
+
 	var w = tas.texture_region_size.x
 	var h = tas.texture_region_size.y
 	#print_debug("Tileset texture atlas size:",w , ",", h)
@@ -255,7 +257,10 @@ func createTileMap(name, tileSize, ts:TileSet):
 	var tm = TileMap.new()
 	tm.set_name(name)
 	tm.tile_set = ts
-	print_debug("TileMap:", name, " Layers:", tm.get_layers_count())
+	# atlas info to calc cords in atlas
+	var tsSrcID = ts.get_source_id(0)
+	var tsSrc:TileSetAtlasSource = ts.get_source(tsSrcID)
+	var tsAtlasGrid:Vector2i = tsSrc.get_atlas_grid_size()
 	
 	var tiles = Xblk * Yblk
 	for i in tiles:
@@ -266,25 +271,24 @@ func createTileMap(name, tileSize, ts:TileSet):
 		var tileDefAttr = iffC[tileIndex]
 		#if tileMapAttr != 0 && tileMapAttr != (tileDefAttr >> T17_TILE_ATTR_SHIFT):
 		#	print_debug("Tile:", tileIndex, " MapAttr:", tileMapAttr, " DefAttr:", tileDefAttr >> T17_TILE_ATTR_SHIFT)
-		var cellCords = Vector2i(cell_x*tileSize, cell_y*tileSize)
-		var atlasCords = Vector2i(0,0) # TODO: read cord
-		tm.set_cell(0, cellCords, -1, atlasCords, 0)
+		var cellCords = Vector2i(cell_x, cell_y)
+		var atlasCords = Vector2i(tileIndex % tsAtlasGrid.x, tileIndex / tsAtlasGrid.x)
+		tm.set_cell(0, cellCords, tsSrcID, atlasCords, 0)
 	return tm
 
 func _import(source_file, save_path, options, platform_variants, gen_files):
 	var name = source_file.get_file().get_basename()
-	# root node for scene
-	var root = Node2D.new()
-	root.set_name(name)
 
 	# tilemap parse data
 	var err = parseTileMap(source_file)
 	if err != OK:
+		printerr(err)
 		return err
 
 	# create atlas source texture
 	err = getTileSetBitmapName(source_file)
 	if err != OK:
+		printerr(err)
 		return err
 	
 	var tas = loadTileSetAtlasSource(tileMapBitmap, options["TileSize"])
@@ -297,13 +301,18 @@ func _import(source_file, save_path, options, platform_variants, gen_files):
 	
 	# tilemap
 	var tm = createTileMap(name + "_tilemap", options["TileSize"], ts)
+
+	# root node for scene
+	var root = Node2D.new()
+	root.set_name(name)
 	root.add_child(tm)
-	#tm.set_owner(root)
+	tm.set_owner(root)
 	
 	# create scene for save
 	var scene = PackedScene.new()
 	err = scene.pack(root)
 	if err != OK:
+		printerr(err)
 		return err
 
 	return ResourceSaver.save(scene, "%s.%s" % [save_path, _get_save_extension()])
