@@ -160,7 +160,6 @@ func parseTileMap(source_file:String):
 				f.seek(f.get_position() + hSize)
 	f.close()
 	print_debug("Parsing DONE Team 17 tilemap: ", source_file)
-
 	return OK
 
 func getTileSetBitmapName(source_file:String):
@@ -188,7 +187,7 @@ func loadTileSetAtlasSource(path: String, tileSize:int):
 	var tas = TileSetAtlasSource.new()
 	tas.margins = Vector2i(0,0)
 	tas.separation = Vector2i(0,0)
-	tas.use_texture_padding = false # NOTE: possible lines between tiles
+	#tas.use_texture_padding = false # NOTE: possible lines between tiles
 	tas.texture_region_size = Vector2i(tileSize,tileSize)
 	tas.texture = tx
 	# init all tiles in atlas 
