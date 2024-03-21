@@ -10,7 +10,7 @@ func _get_importer_name():
 	return "team17.tilemap"
 
 func _get_visible_name():
-	return "Team 17 Tilemap"
+	return "Team 17 TileMap"
 
 func _get_recognized_extensions():
 	return ["t7mp"]
@@ -38,7 +38,22 @@ func _get_import_options(path, preset_index):
 	match preset_index:
 		Presets.DEFAULT:
 			return [
-				{"name": "TileSize", "default_value": 16, "hint_string": "pixel size of tile"}
+				{
+					"name": "TileSize",
+					"default_value": 16
+				},
+				{
+					"name": "TileSetTexture",
+					"default_value": "Default",
+					"property_hint": PROPERTY_HINT_FILE,
+					"hint_string": "*.png;Resource File"
+				},
+				{
+					"name": "TileSetCollision",
+					"default_value": "Default",
+					"property_hint": PROPERTY_HINT_FILE,
+					"hint_string": "*.png;Resource File"
+				}
 			]
 		_:
 			return[]
@@ -67,7 +82,6 @@ var palDColors:Array		# Palette D colors
 var body:Array 				# tilemap tiles body
 var iffC:Array				# tileset attributes
 var cccL:Array				# ?
-var tileMapBitmap:String	# bitmap file for tilemap from
 
 func readUInt16Array(b:PackedByteArray):
 	var dta:Array
@@ -162,27 +176,13 @@ func parseTileMap(source_file:String):
 	print_debug("Parsing DONE Team 17 tilemap: ", source_file)
 	return OK
 
-func getTileSetBitmapName(source_file:String):
-	var parts = iffP.rsplit(":", false, 1)	# remove volume
-	if len(parts) != 2:
-		return ERR_FILE_BAD_PATH
-	if !parts[1].ends_with("-IFF"):	# check extension
-		return ERR_FILE_BAD_PATH
-	tileMapBitmap = source_file.get_base_dir() + "/" + parts[1].replace("-IFF", ".png")
-	return OK
-
-# loads tileset bitmap as texture atlas
-func loadTileSetAtlasSource(path: String, tileSize:int):
-	if not ResourceLoader.exists(path, "Image"):
-		return null
-	
-	var tx: Texture2D = load(path)
+func createTileSetAtlasSource(tx: Texture2D, tileSize:int):
 	var w = tx.get_width()
 	var h = tx.get_height()
-	print_debug("Tileset texture atlas size:",w , ",", h, "px")
+	print_debug("TileSet texture atlas size:",w , ",", h, "px")
 	var tilesX:int = w / tileSize
 	var tilesY:int = h / tileSize
-	print_debug("Tileset texture atlas tiles:", tilesX, ",", tilesY)
+	print_debug("TileSet texture atlas tiles:", tilesX, ",", tilesY)
 
 	var tas = TileSetAtlasSource.new()
 	tas.margins = Vector2i(0,0)
@@ -201,7 +201,7 @@ func createTileSet(tas:TileSetAtlasSource, tileSize:int):
 	ts.tile_shape = TileSet.TILE_SHAPE_SQUARE
 	ts.tile_size = Vector2i(tileSize,tileSize)
 	var srcID:int = ts.add_source(tas)
-	print_debug("Tileset atlas source ID:", srcID)
+	print_debug("TileSetAtlasSource ID:", srcID)
 	ts.set_meta("IFFC", iffC)		# Add tile attributes
 
 	var w = tas.texture_region_size.x
@@ -251,7 +251,6 @@ func createTileSet(tas:TileSetAtlasSource, tileSize:int):
 	#		tID += 1
 	return ts
 
-
 func createTileMap(name, tileSize, ts:TileSet):
 	var tm = TileMap.new()
 	tm.set_name(name)
@@ -275,31 +274,54 @@ func createTileMap(name, tileSize, ts:TileSet):
 		tm.set_cell(0, cellCords, tsSrcID, atlasCords, 0)
 	return tm
 
+func assetFileName(tileMapFileName:String, assetFileName:String, defaultName:String, defaultFileExt:String):
+	if assetFileName != "Default":
+		return assetFileName
+	return "%s/%s%s.%s" % [tileMapFileName.get_base_dir(), tileMapFileName.get_file().get_basename().substr(0,2), defaultName, defaultFileExt]
+
+func loadTileSetTexture(tileMapFileName:String, tileSetFileName:String):
+	tileSetFileName = assetFileName(tileMapFileName, tileSetFileName, "BM", "png")
+	print_debug("Loading TileSet Texture2D: ", tileSetFileName)
+	if not ResourceLoader.exists(tileSetFileName, "Image"):
+		printerr("TileSet Texture2D: ", tileSetFileName, ERR_FILE_NOT_FOUND)
+		return null
+	var tx: Texture2D = load(tileSetFileName)
+	return tx
+
+func loadTileSetCollisionBitmap(tileMapFileName:String, tileSetCollisionFileName:String):
+	tileSetCollisionFileName = assetFileName(tileMapFileName, tileSetCollisionFileName, "MS", "png")
+	print_debug("Loading TileSet collision BitMap: ", tileSetCollisionFileName)
+	if not ResourceLoader.exists(tileSetCollisionFileName, "BitMap"):
+		printerr("TileSet collision BitMap: ", tileSetCollisionFileName, ERR_FILE_NOT_FOUND)
+		return null
+	var bm: BitMap = load(tileSetCollisionFileName)
+	return bm
+
 func _import(source_file, save_path, options, platform_variants, gen_files):
+	var tileSize:int = options["TileSize"]
+	var tileSetTextureFile:String = options["TileSetTexture"]
+	var tileSetCollisionFile:String = options["TileSetCollision"]
+	print_debug("Importing Team17 TileMap:", source_file, " TileSize:", tileSize, " Texture:", tileSetTextureFile, " Collision:", tileSetCollisionFile)
+
+	# base name of tilemap
 	var name = source_file.get_file().get_basename()
 
-	# tilemap parse data
+	var tx:Texture2D = loadTileSetTexture(source_file, tileSetTextureFile)
+	if tx == null:
+		return ERR_FILE_NOT_FOUND
+
+	var cbm:BitMap = loadTileSetCollisionBitmap(source_file, tileSetCollisionFile)
+	if cbm == null:
+		return ERR_FILE_NOT_FOUND
+	
 	var err = parseTileMap(source_file)
 	if err != OK:
 		printerr(err)
 		return err
-
-	# create atlas source texture
-	err = getTileSetBitmapName(source_file)
-	if err != OK:
-		printerr(err)
-		return err
 	
-	var tas = loadTileSetAtlasSource(tileMapBitmap, options["TileSize"])
-	if null == tas:
-		printerr("File:", tileMapBitmap, ERR_FILE_NOT_FOUND)
-		return ERR_FILE_NOT_FOUND
-
-	# create tileset
-	var ts = createTileSet(tas, options["TileSize"])
-	
-	# tilemap
-	var tm = createTileMap(name + "_tilemap", options["TileSize"], ts)
+	var tas = createTileSetAtlasSource(tx, tileSize)
+	var ts = createTileSet(tas, tileSize)
+	var tm = createTileMap(name + "_tilemap", tileSize, ts)
 
 	# root node for scene
 	var root = Node2D.new()

@@ -5,7 +5,7 @@ Example of importer for Team17 map from Amiga games
 All game assets are located in `data` folder, compressed using [Imploder 4.0](https://aminet.net/package/util/pack/imploder-4.0).  
 There are 6 levels (worlds) in game, assets files per level have prefix "L" and level number e.g. "L1".  
 Each file has suffix depending on purpose of file:
-- `BM` is tile set as IFF image full file name e.g.
+- `BM` is tile set as IFF image 320x672 5bpp full file name e.g.
 	- L1BM
 - `BO` are enemy sprites as IFF image full file name e.g.
 	- L1BO
@@ -20,7 +20,7 @@ Each file has suffix depending on purpose of file:
 	- L1MA2
 	- L1MA3
 	- L1MA4
-- `MS` tiles collision masks as image full file name e.g.
+- `MS` tiles collision masks as raw image 320x672 1bpp full file name e.g.
 	- L1MS
 - `MU` is level music as ProTracker module packed format, recognizable by the P41A magic bytes full file name e.g.
 	- L1MU
