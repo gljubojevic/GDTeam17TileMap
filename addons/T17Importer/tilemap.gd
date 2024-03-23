@@ -3,8 +3,77 @@ extends EditorImportPlugin
 
 const T17_TILE_INDEX_MASK = 0x3ff
 const T17_TILE_ATTR_SHIFT = 10
+const T17_DEFAULT_ATTR_LAYER_NAME = "DefaultAttributes"
 
 enum Presets { DEFAULT }
+
+# SuperFrog tile attributes in TileMap and as default for tiles
+enum SuperFrogTileAttr {
+	Nothing, 			# 00 Nothing
+	Enemy01,			# 01 Enemy 1 or Witch boss
+	Enemy02,			# 02 Enemy 2
+	Enemy03,			# 03 Enemy 3
+	JumpPad1,			# 04 Jumppad type 1
+	JumpPad2,			# 05 Jumppad type 2 (other background)
+	Lethal,				# 06 Lethal (spikes, fire, etc.)
+	JumpPadSideways,	# 07 Jumppad sideways
+	Coin,				# 08 Coin
+	SecretCoin,			# 09 "Secret" coin
+	Enemy04,			# 10 Enemy 4
+	Enemy05,			# 11 Enemy 5
+	Enemy06,			# 12 Enemy 6
+	Enemy07,			# 13 Enemy 7
+	Enemy08,			# 14 Enemy 8
+	Enemy09,			# 15 Enemy 9
+	Enemy10,			# 16 Enemy 10
+	Enemy11,			# 17 Enemy 11
+	Enemy12,			# 18 Enemy 12
+	Enemy13,			# 19 Enemy 13
+	Enemy14,			# 20 Enemy 14
+	Enemy15,			# 21 Enemy 15
+	Enemy16,			# 22 Enemy 16
+	Enemy17,			# 23 Enemy 17
+	Enemy18,			# 24 Enemy 18
+	Enemy19,			# 25 Enemy 19
+	Enemy20,			# 26 Enemy 20
+	Enemy21,			# 27 Enemy 21
+	Enemy22,			# 28 Enemy 22
+	LevelExitMark,		# 29 Level exit X image
+	Unused30,			# 30 Not used
+	Unused31,			# 31 Not used
+	Unknown32,			# 32 Unknown, used once in w2l3, leftover?
+	Unused33,			# 33 Not used
+	Unused34,			# 34 Not used
+	Unused35,			# 35 Not used
+	Retracting,			# 36 Retracting platform (not in world 4)
+	StopEnemies,		# 37 Stop walking enemies
+	SecretPassage,		# 38 Secret passage
+	SuckingEntrance,	# 39 Big sucking thing entrance
+	SuckingSuctionV,	# 40 Big sucking thing suction vertical
+	SuckingSuctionVStp,	# 41 Big sucking thing stop (vertical)
+	SuckingSuctionH,	# 42 Big sucking thing suction horizontal
+	SuckingSuctionHStp,	# 43 Big sucking thing stop (horizontal)
+	ThrusterPad,		# 44 Thruster pad
+	CoinDispenser,		# 45 Coin dispenser (jump to get coins)
+	WetPushLeft,		# 46 Wet push left
+	WetPushRight,		# 47 Wet push right
+	SwitchDoor1,		# 48 Switch\door combo 1
+	SwitchDoor2,		# 49 Switch\door combo 2
+	SwitchDoor3,		# 50 Switch\door combo 3
+	SwitchDoor4,		# 51 Switch\door combo 4
+	SwitchDoor5,		# 52 Switch\door combo 5?
+	PlayerStart,		# 53 Player start
+	LevelExit,			# 54 Level exit
+	Pickup,				# 55 This tile can be picked up
+	Slippery,			# 56 Slimy\wet\icy
+	Water,				# 57 Water (swimmable)
+	Unused58,			# 58 Not used
+	Unused59,			# 59 Not used
+	Unused60,			# 60 Not used
+	Impassible,			# 61 Impassible
+	PassFromBelow,		# 62 Player can pass these tiles from below
+	WalkOn				# 63 These tiles can be walked upon
+}
 
 func _get_importer_name():
 	return "team17.tilemap"
@@ -53,6 +122,12 @@ func _get_import_options(path, preset_index):
 					"default_value": "Default",
 					"property_hint": PROPERTY_HINT_FILE,
 					"hint_string": "*.png;Resource File"
+				},
+				{
+					"name": "CollisionBitmapEpsilon",
+					"default_value": 0.9,
+					"property_hint": PROPERTY_HINT_RANGE,
+					"hint_string": "0,3"
 				}
 			]
 		_:
@@ -70,7 +145,7 @@ func hunkSize(f:FileAccess):
 
 var Xblk:int				# tilemap size X in tiles
 var Yblk:int				# tilemap size Y in tiles
-var iffP:String				# IFF paletter file
+var iffP:String				# IFF palette file
 var palAFile:String			# Palette A filename
 var palAColors:Array		# Palette A colors
 var palBFile:String			# Palette B filename
@@ -112,15 +187,15 @@ func getPaletteColors(b:PackedByteArray, pal:String):
 	return col
 
 func parseTileMap(source_file:String):
-	print_debug("Parsing Team 17 tilemap: ", source_file)
+	print_debug("Parsing Team 17 TileMap: ", source_file)
 	var f = FileAccess.open(source_file, FileAccess.READ)
 	if f == null:
 		return FileAccess.get_open_error()
-	f.big_endian = true # reading amiga format
+	f.big_endian = true # reading Amiga format (big endian)
 	
 	var hName = hunkName(f)
 	if "T7MP" != hName:
-		print_debug("Not Team17 map format")
+		print_debug("Not Team17 TileMap format")
 		f.close()
 		return ERR_PARSE_ERROR
 	var hSize = hunkSize(f)
@@ -170,10 +245,10 @@ func parseTileMap(source_file:String):
 				var b = f.get_buffer(hSize)
 				body = readUInt16Array(b)
 			_:
-				print_debug("Skipping unused...")
+				print_debug("Skipping %s unused..." % [hName])
 				f.seek(f.get_position() + hSize)
 	f.close()
-	print_debug("Parsing DONE Team 17 tilemap: ", source_file)
+	print_debug("Parsing Team 17 TileMap: ", source_file, " DONE!")
 	return OK
 
 func createTileSetAtlasSource(tx: Texture2D, tileSize:int):
@@ -196,59 +271,82 @@ func createTileSetAtlasSource(tx: Texture2D, tileSize:int):
 			tas.create_tile(Vector2i(x,y))
 	return tas
 
-func createTileSet(tas:TileSetAtlasSource, tileSize:int):
+func addTileCollisionFromBitMap(tID:int, td:TileData, cbm:BitMap, collisionBitMapEpsilon:float, tileSize:int, tilePos:Vector2i):
+	var tbm:BitMap = BitMap.new()
+	tbm.create(Vector2i(tileSize, tileSize))
+	var posX:int = tilePos.x * tileSize
+	var posY:int = tilePos.y * tileSize
+	var bitCount:int = 0 # count active bits while creating tile bitmap
+	for y in tileSize:
+		for x in tileSize:
+			if cbm.get_bit(x+posX,y+posY):
+				tbm.set_bit(x,y,true)
+				bitCount+=1
+	# rectangle for creating tile collision polygons
+	var tileRect = Rect2i(0,0,tileSize, tileSize)
+	# default collision full rectangle
+	var collision:Array = [
+		PackedVector2Array(
+			[Vector2i(0, 0), Vector2(tileSize, 0), Vector2(tileSize, tileSize), Vector2(0, tileSize)]
+		)
+	]
+	# active bits in collision bitmap, create collision poygons
+	if bitCount != 0:
+		collision = tbm.opaque_to_polygons(tileRect, collisionBitMapEpsilon)
+	var collisionTransform:Transform2D = Transform2D(0, Vector2i(tileSize/2, tileSize/2))
+	for idx in collision.size():
+		td.add_collision_polygon(0)
+		td.set_collision_polygon_points(0, idx, collision[idx] * collisionTransform)
+
+func createTileSet(tas:TileSetAtlasSource, cbm:BitMap, collisionBitMapEpsilon:float, tileSize:int):
+	var tasGrid:Vector2i = tas.get_atlas_grid_size()
+	print_debug("TileSetAtlasGridSize:", tasGrid)
+
 	var ts = TileSet.new()
 	ts.tile_shape = TileSet.TILE_SHAPE_SQUARE
 	ts.tile_size = Vector2i(tileSize,tileSize)
-	var srcID:int = ts.add_source(tas)
+	var srcID:int = ts.add_source(tas, -1)
 	print_debug("TileSetAtlasSource ID:", srcID)
-	ts.set_meta("IFFC", iffC)		# Add tile attributes
+	# for original default tile attributes
+	ts.add_custom_data_layer(-1)
+	ts.set_custom_data_layer_name(0, T17_DEFAULT_ATTR_LAYER_NAME)
+	ts.set_custom_data_layer_type(0, TYPE_INT)
+	# for collision poygons
+	ts.add_physics_layer(-1)
 
-	var w = tas.texture_region_size.x
-	var h = tas.texture_region_size.y
-	#print_debug("Tileset texture atlas size:",w , ",", h)
-	var tilesX:int = w / tileSize
-	var tilesY:int = h / tileSize
-	#print_debug("Tileset tiles:", tilesX, ",", tilesY)
-	var tSize = Vector2(tileSize, tileSize)
+	var tID = 0
+	for y in tasGrid.y:
+		for x in tasGrid.x:
+			var defaultAttr = iffC[tID]
+			# should not be value at index position
+			if (defaultAttr & T17_TILE_INDEX_MASK) != 0:
+				printerr("Tile:", tID, " has value:", defaultAttr, " at index bits")
+			defaultAttr = defaultAttr >> T17_TILE_ATTR_SHIFT
 
-	var tShape = RectangleShape2D.new()
-	tShape.extents = Vector2(tileSize/2, tileSize/2)
-	var tShapeOffset = Vector2(tileSize/2, tileSize/2)
-
-	#var tID = 0
-	#for y in tilesY:
-	#	for x in tilesX:
-	#		ts.create_tile(tID)
-	#		ts.tile_set_texture(tID, tx)
-	#		var tPos = Vector2(x * tileSize, y * tileSize)
-	#		var region = Rect2(tPos, tSize)
-	#		ts.tile_set_region(tID, region)
-
-	#		var tileDefAttr = iffC[tID]
-	#		# just check if there is some value
-	#		if (tileDefAttr & T17_TILE_INDEX_MASK) != 0:
-	#			print_debug("Tile:", tID, " AttrValue:", tileDefAttr & T17_TILE_INDEX_MASK)
-	#		# get attribute
-	#		tileDefAttr = tileDefAttr >> T17_TILE_ATTR_SHIFT
-	#		match tileDefAttr:
-	#			0:
-	#				pass
-	#			6:
-	#				ts.tile_set_shape(tID, 6, tShape)
-	#				ts.tile_set_shape_offset(tID, 6, tShapeOffset)
-	#			55: # This tile can be picked up
-	#				ts.tile_set_shape(tID, 55, tShape)
-	#				ts.tile_set_shape_offset(tID, 55, tShapeOffset)
-	#			61:	# Impassible
-	#				ts.tile_set_shape(tID, 61, tShape)
-	#				ts.tile_set_shape_offset(tID, 61, tShapeOffset)
-	#			63: # These tiles can be walked upon
-	#				ts.tile_set_shape(tID, 63, tShape)
-	#				ts.tile_set_shape_offset(tID, 63, tShapeOffset)
-	#			_:
-	#				print_debug("TileID:", tID ," Unhandled default attr:", tileDefAttr)
-	#		tID += 1
+			# tile to add layer data
+			var pos:Vector2i = Vector2i(x,y)
+			var td:TileData = tas.get_tile_data(pos,0)
+			td.set_custom_data(T17_DEFAULT_ATTR_LAYER_NAME, defaultAttr)
+			
+			# decode default attribute
+			match defaultAttr:
+				SuperFrogTileAttr.Nothing:
+					pass
+				SuperFrogTileAttr.Lethal:		# 06 Lethal (spikes, fire, etc.)
+					addTileCollisionFromBitMap(tID, td, cbm, collisionBitMapEpsilon, tileSize, pos)
+					#print_debug("TileID:", tID ," Collision on default attribute:", defaultAttr)
+				SuperFrogTileAttr.Pickup:		# 55 This tile can be picked up
+					addTileCollisionFromBitMap(tID, td, cbm, collisionBitMapEpsilon, tileSize, pos)
+					#print_debug("TileID:", tID ," Collision on default attribute:", defaultAttr)
+				SuperFrogTileAttr.Impassible:	# 61 Impassible
+					addTileCollisionFromBitMap(tID, td, cbm, collisionBitMapEpsilon, tileSize, pos)
+					#print_debug("TileID:", tID ," Collision on default attribute:", defaultAttr)
+				SuperFrogTileAttr.WalkOn:		# 63 These tiles can be walked upon
+					addTileCollisionFromBitMap(tID, td, cbm, collisionBitMapEpsilon, tileSize, pos)
+					#print_debug("TileID:", tID ," Collision on default attribute:", defaultAttr)
+				_:
+					print_debug("TileID:", tID ," Unhandeled default attribute:", defaultAttr)
+			tID += 1
 	return ts
 
 func createTileMap(name, tileSize, ts:TileSet):
@@ -262,14 +360,13 @@ func createTileMap(name, tileSize, ts:TileSet):
 	
 	var tiles = Xblk * Yblk
 	for i in tiles:
-		var cell_x = i % Xblk
-		var cell_y = int(i / Xblk)
-		var tileIndex = body[i] & T17_TILE_INDEX_MASK
-		var tileMapAttr = body[i] >> T17_TILE_ATTR_SHIFT
-		var tileDefAttr = iffC[tileIndex]
-		#if tileMapAttr != 0 && tileMapAttr != (tileDefAttr >> T17_TILE_ATTR_SHIFT):
-		#	print_debug("Tile:", tileIndex, " MapAttr:", tileMapAttr, " DefAttr:", tileDefAttr >> T17_TILE_ATTR_SHIFT)
-		var cellCords = Vector2i(cell_x, cell_y)
+		var tileIndex:int = body[i] & T17_TILE_INDEX_MASK
+		var tileMapAttr:int = body[i] >> T17_TILE_ATTR_SHIFT
+		var tileDefAttr:int = iffC[tileIndex] >> T17_TILE_ATTR_SHIFT
+		# check different attribute in TileMap from default in TileSet
+		if tileMapAttr != tileDefAttr:
+			print_debug("Different attribute tile:", tileIndex, " TileMap:", tileMapAttr, " TileSet:", tileDefAttr)
+		var cellCords = Vector2i(i % Xblk, i / Xblk)
 		var atlasCords = Vector2i(tileIndex % tsAtlasGrid.x, tileIndex / tsAtlasGrid.x)
 		tm.set_cell(0, cellCords, tsSrcID, atlasCords, 0)
 	return tm
@@ -301,6 +398,7 @@ func _import(source_file, save_path, options, platform_variants, gen_files):
 	var tileSize:int = options["TileSize"]
 	var tileSetTextureFile:String = options["TileSetTexture"]
 	var tileSetCollisionFile:String = options["TileSetCollision"]
+	var collisionBitmapEpsilon:float = options["CollisionBitmapEpsilon"]
 	print_debug("Importing Team17 TileMap:", source_file, " TileSize:", tileSize, " Texture:", tileSetTextureFile, " Collision:", tileSetCollisionFile)
 
 	# base name of tilemap
@@ -320,7 +418,7 @@ func _import(source_file, save_path, options, platform_variants, gen_files):
 		return err
 	
 	var tas = createTileSetAtlasSource(tx, tileSize)
-	var ts = createTileSet(tas, tileSize)
+	var ts = createTileSet(tas, cbm, collisionBitmapEpsilon, tileSize)
 	var tm = createTileMap(name + "_tilemap", tileSize, ts)
 
 	# root node for scene
