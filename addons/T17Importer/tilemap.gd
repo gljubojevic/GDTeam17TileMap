@@ -298,7 +298,7 @@ func addTileCollisionFromBitMap(tID:int, td:TileData, cbm:BitMap, collisionBitMa
 		td.add_collision_polygon(0)
 		td.set_collision_polygon_points(0, idx, collision[idx] * collisionTransform)
 
-func createTileSet(tas:TileSetAtlasSource, cbm:BitMap, collisionBitMapEpsilon:float, tileSize:int):
+func createTileSet(tas:TileSetAtlasSource, cbm:BitMap, cbmEpsilon:float, tileSize:int):
 	var tasGrid:Vector2i = tas.get_atlas_grid_size()
 	print_debug("TileSetAtlasGridSize:", tasGrid)
 
@@ -333,23 +333,27 @@ func createTileSet(tas:TileSetAtlasSource, cbm:BitMap, collisionBitMapEpsilon:fl
 				SuperFrogTileAttr.Nothing:
 					pass
 				SuperFrogTileAttr.Lethal:		# 06 Lethal (spikes, fire, etc.)
-					addTileCollisionFromBitMap(tID, td, cbm, collisionBitMapEpsilon, tileSize, pos)
+					addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, pos)
 					#print_debug("TileID:", tID ," Collision on default attribute:", defaultAttr)
 				SuperFrogTileAttr.Pickup:		# 55 This tile can be picked up
-					addTileCollisionFromBitMap(tID, td, cbm, collisionBitMapEpsilon, tileSize, pos)
+					addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, pos)
 					#print_debug("TileID:", tID ," Collision on default attribute:", defaultAttr)
 				SuperFrogTileAttr.Impassible:	# 61 Impassible
-					addTileCollisionFromBitMap(tID, td, cbm, collisionBitMapEpsilon, tileSize, pos)
+					addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, pos)
 					#print_debug("TileID:", tID ," Collision on default attribute:", defaultAttr)
 				SuperFrogTileAttr.WalkOn:		# 63 These tiles can be walked upon
-					addTileCollisionFromBitMap(tID, td, cbm, collisionBitMapEpsilon, tileSize, pos)
+					addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, pos)
 					#print_debug("TileID:", tID ," Collision on default attribute:", defaultAttr)
 				_:
 					print_debug("TileID:", tID ," Unhandeled default attribute:", defaultAttr)
 			tID += 1
 	return ts
 
-func createTileMap(name, tileSize, ts:TileSet):
+func addAlternativeTile(tileIndex:int, tileAttr:int, tas:TileSetAtlasSource, cbm:BitMap, cbmEpsilon:float, tileSize:int):
+	
+	return 0
+
+func createTileMap(name:String, tileSize:int, ts:TileSet, cbm:BitMap, cbmEpsilon:float):
 	var tm = TileMap.new()
 	tm.set_name(name)
 	tm.tile_set = ts
@@ -363,12 +367,14 @@ func createTileMap(name, tileSize, ts:TileSet):
 		var tileIndex:int = body[i] & T17_TILE_INDEX_MASK
 		var tileMapAttr:int = body[i] >> T17_TILE_ATTR_SHIFT
 		var tileDefAttr:int = iffC[tileIndex] >> T17_TILE_ATTR_SHIFT
+		var cellCords = Vector2i(i % Xblk, i / Xblk)
+		var atlasCords = Vector2i(tileIndex % tsAtlasGrid.x, tileIndex / tsAtlasGrid.x)
+		var altTileID = 0
 		# check different attribute in TileMap from default in TileSet
 		if tileMapAttr != tileDefAttr:
 			print_debug("Different attribute tile:", tileIndex, " TileMap:", tileMapAttr, " TileSet:", tileDefAttr)
-		var cellCords = Vector2i(i % Xblk, i / Xblk)
-		var atlasCords = Vector2i(tileIndex % tsAtlasGrid.x, tileIndex / tsAtlasGrid.x)
-		tm.set_cell(0, cellCords, tsSrcID, atlasCords, 0)
+			altTileID = addAlternativeTile(tileIndex, tileMapAttr, tsSrc, cbm, cbmEpsilon, tileSize)
+		tm.set_cell(0, cellCords, tsSrcID, atlasCords, altTileID)
 	return tm
 
 func assetFileName(tileMapFileName:String, assetFileName:String, defaultName:String, defaultFileExt:String):
@@ -419,7 +425,7 @@ func _import(source_file, save_path, options, platform_variants, gen_files):
 	
 	var tas = createTileSetAtlasSource(tx, tileSize)
 	var ts = createTileSet(tas, cbm, collisionBitmapEpsilon, tileSize)
-	var tm = createTileMap(name + "_tilemap", tileSize, ts)
+	var tm = createTileMap(name + "_tilemap", tileSize, ts, cbm, collisionBitmapEpsilon)
 
 	# root node for scene
 	var root = Node2D.new()
