@@ -269,7 +269,7 @@ func createTileSetAtlasSource(tx: Texture2D, tileSize:int):
 			tas.create_tile(Vector2i(x,y))
 	return tas
 
-func addTileCollisionFromBitMap(tID:int, td:TileData, cbm:BitMap, collisionBitMapEpsilon:float, tileSize:int, tilePos:Vector2i):
+func addTileCollisionFromBitMap(tID:int, td:TileData, cbm:BitMap, cbmEpsilon:float, tileSize:int, tilePos:Vector2i):
 	var tbm:BitMap = BitMap.new()
 	tbm.create(Vector2i(tileSize, tileSize))
 	var pos:Vector2i = tilePos * tileSize
@@ -289,12 +289,30 @@ func addTileCollisionFromBitMap(tID:int, td:TileData, cbm:BitMap, collisionBitMa
 	]
 	# active bits in collision bitmap, create collision poygons
 	if bitCount != 0:
-		collision = tbm.opaque_to_polygons(tileRect, collisionBitMapEpsilon)
+		collision = tbm.opaque_to_polygons(tileRect, cbmEpsilon)
 	var collisionTransform:Transform2D = Transform2D(0, Vector2i(tileSize/2, tileSize/2))
 	# might be more than one collision polygon
 	for idx in collision.size():
 		td.add_collision_polygon(0)
 		td.set_collision_polygon_points(0, idx, collision[idx] * collisionTransform)
+
+func tileAttrSuperFrog(tID:int, attr:int, td:TileData, cbm:BitMap, cbmEpsilon:float, tileSize:int, tilePos:Vector2i):
+	# custom data from map
+	td.set_custom_data(T17_DEFAULT_ATTR_LAYER_NAME, attr)
+	# decode attribute for collision
+	match attr:
+		SuperFrogTileAttr.Nothing:
+			pass
+		SuperFrogTileAttr.Lethal:		# 06 Lethal (spikes, fire, etc.)
+			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+		SuperFrogTileAttr.Pickup:		# 55 This tile can be picked up
+			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+		SuperFrogTileAttr.Impassible:	# 61 Impassible
+			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+		SuperFrogTileAttr.WalkOn:		# 63 These tiles can be walked upon
+			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+		_:
+			print_debug("TileID:", tID ," Unhandeled attribute:", attr)
 
 func createTileSet(tas:TileSetAtlasSource, cbm:BitMap, cbmEpsilon:float, tileSize:int):
 	var ts = TileSet.new()
@@ -315,53 +333,19 @@ func createTileSet(tas:TileSetAtlasSource, cbm:BitMap, cbmEpsilon:float, tileSiz
 			if (attr & T17_TILE_INDEX_MASK) != 0:
 				printerr("Tile:", tID, " has value:", attr, " at index bits")
 			attr = attr >> T17_TILE_ATTR_SHIFT
-
 			# tile to add layer data
 			var pos:Vector2i = Vector2i(x,y)
 			var td:TileData = tas.get_tile_data(pos,0)
-			td.set_custom_data(T17_DEFAULT_ATTR_LAYER_NAME, attr)
-			
-			# decode attribute
-			match attr:
-				SuperFrogTileAttr.Nothing:
-					pass
-				SuperFrogTileAttr.Lethal:		# 06 Lethal (spikes, fire, etc.)
-					addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, pos)
-					#print_debug("TileID:", tID ," Collision on attribute:", attr)
-				SuperFrogTileAttr.Pickup:		# 55 This tile can be picked up
-					addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, pos)
-					#print_debug("TileID:", tID ," Collision on attribute:", attr)
-				SuperFrogTileAttr.Impassible:	# 61 Impassible
-					addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, pos)
-					#print_debug("TileID:", tID ," Collision on attribute:", attr)
-				SuperFrogTileAttr.WalkOn:		# 63 These tiles can be walked upon
-					addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, pos)
-					#print_debug("TileID:", tID ," Collision on attribute:", attr)
-				_:
-					print_debug("TileID:", tID ," Unhandeled attribute:", attr)
+			# TODO: add game selection SuperFrog, AlienBreed...
+			tileAttrSuperFrog(tID, attr, td, cbm, cbmEpsilon, tileSize, pos)
 			tID += 1
 	return ts
 
-func addAlternativeTile(tID:int, attr:int, tas:TileSetAtlasSource, atlasCords:Vector2i, cbm:BitMap, cbmEpsilon:float, tileSize:int):
+func addAltTile(tID:int, attr:int, tas:TileSetAtlasSource, atlasCords:Vector2i, cbm:BitMap, cbmEpsilon:float, tileSize:int):
 	var altID = tas.create_alternative_tile(atlasCords)
 	var td:TileData = tas.get_tile_data(atlasCords, altID)
-	td.set_custom_data(T17_DEFAULT_ATTR_LAYER_NAME, attr)
-
-	# decode attribute
-	match attr:
-		SuperFrogTileAttr.Nothing:
-			pass
-		SuperFrogTileAttr.Lethal:		# 06 Lethal (spikes, fire, etc.)
-			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, atlasCords)
-		SuperFrogTileAttr.Pickup:		# 55 This tile can be picked up
-			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, atlasCords)
-		SuperFrogTileAttr.Impassible:	# 61 Impassible
-			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, atlasCords)
-		SuperFrogTileAttr.WalkOn:		# 63 These tiles can be walked upon
-			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, atlasCords)
-		_:
-			print_debug("TileID:", tID , " Alternate TileID:", altID," Unhandeled attribute:", attr)
-
+	# TODO: add game selection SuperFrog, AlienBreed...
+	tileAttrSuperFrog(tID, attr, td, cbm, cbmEpsilon, tileSize, atlasCords)
 	return altID
 
 func createTileMap(name:String, tileSize:int, ts:TileSet, cbm:BitMap, cbmEpsilon:float):
@@ -389,10 +373,10 @@ func createTileMap(name:String, tileSize:int, ts:TileSet, cbm:BitMap, cbmEpsilon
 				if altAttr.has(mapAttr):
 					altID = altAttr[mapAttr]
 				else:
-					altID = addAlternativeTile(tID, mapAttr, tas, atlasCords, cbm, cbmEpsilon, tileSize)
+					altID = addAltTile(tID, mapAttr, tas, atlasCords, cbm, cbmEpsilon, tileSize)
 					altAttr[mapAttr] = altID
 			else:
-				altID = addAlternativeTile(tID, mapAttr, tas, atlasCords, cbm, cbmEpsilon, tileSize)
+				altID = addAltTile(tID, mapAttr, tas, atlasCords, cbm, cbmEpsilon, tileSize)
 				altTiles[tID] = {
 					mapAttr: altID
 				}
@@ -449,7 +433,7 @@ func _import(source_file, save_path, options, platform_variants, gen_files):
 	
 	var tas = createTileSetAtlasSource(tx, tileSize)
 	var ts = createTileSet(tas, cbm, collisionBitmapEpsilon, tileSize)
-	var tm = createTileMap(name + "_tilemap", tileSize, ts, cbm, collisionBitmapEpsilon)
+	var tm = createTileMap(name + "_TileMap", tileSize, ts, cbm, collisionBitmapEpsilon)
 
 	# root node for scene
 	var root = Node2D.new()
