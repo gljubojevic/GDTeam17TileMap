@@ -103,6 +103,9 @@ func _get_preset_name(preset_index):
 		_:
 			return "Unknown"
 
+func _get_priority():
+	return 1.0
+
 func _get_import_options(path, preset_index):
 	match preset_index:
 		Presets.DEFAULT:
@@ -307,6 +310,8 @@ func tileAttrSuperFrog(tID:int, attr:int, td:TileData, cbm:BitMap, cbmEpsilon:fl
 			pass
 		SuperFrogTileAttr.Enemy02:			# 02 Enemy 2
 			pass
+		SuperFrogTileAttr.Enemy03:			# 03 Enemy 3
+			pass
 		SuperFrogTileAttr.JumpPad1:			# 04 Jumppad type 1
 			pass
 		SuperFrogTileAttr.JumpPad2:			# 05 Jumppad type 2 (other background)
@@ -317,11 +322,19 @@ func tileAttrSuperFrog(tID:int, attr:int, td:TileData, cbm:BitMap, cbmEpsilon:fl
 			pass
 		SuperFrogTileAttr.SecretCoin:		# 09 "Secret" coin
 			pass
+		SuperFrogTileAttr.Enemy04:			# 10 Enemy 4
+			pass
+		SuperFrogTileAttr.Enemy05:			# 11 Enemy 5
+			pass
 		SuperFrogTileAttr.Enemy06:			# 12 Enemy 6
 			pass
 		SuperFrogTileAttr.Enemy07:			# 13 Enemy 7
 			pass
 		SuperFrogTileAttr.Enemy09:			# 15 Enemy 9
+			pass
+		SuperFrogTileAttr.Enemy10:			# 16 Enemy 10
+			pass
+		SuperFrogTileAttr.Enemy11:			# 17 Enemy 11
 			pass
 		SuperFrogTileAttr.Enemy12:			# 18 Enemy 12
 			pass
