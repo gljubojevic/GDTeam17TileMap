@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cxj3qgdfp33d8"
-path="res://.godot/imported/L1BO.png-95eae07c368661f402e3d77657329456.ctex"
+path="res://.godot/imported/L1BO.png-be202f0244656d4c6b8c8b20906b1716.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://SuperFrog/L1BO.png"
-dest_files=["res://.godot/imported/L1BO.png-95eae07c368661f402e3d77657329456.ctex"]
+source_file="res://SuperFrog/Level01/L1BO.png"
+dest_files=["res://.godot/imported/L1BO.png-be202f0244656d4c6b8c8b20906b1716.ctex"]
 
 [params]
 
