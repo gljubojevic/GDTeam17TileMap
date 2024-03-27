@@ -303,13 +303,47 @@ func tileAttrSuperFrog(tID:int, attr:int, td:TileData, cbm:BitMap, cbmEpsilon:fl
 	match attr:
 		SuperFrogTileAttr.Nothing:
 			pass
-		SuperFrogTileAttr.Lethal:		# 06 Lethal (spikes, fire, etc.)
+		SuperFrogTileAttr.Enemy01:			# 01 Enemy 1 or Witch boss
+			pass
+		SuperFrogTileAttr.Enemy02:			# 02 Enemy 2
+			pass
+		SuperFrogTileAttr.JumpPad1:			# 04 Jumppad type 1
+			pass
+		SuperFrogTileAttr.JumpPad2:			# 05 Jumppad type 2 (other background)
+			pass
+		SuperFrogTileAttr.Lethal:			# 06 Lethal (spikes, fire, etc.)
+			pass
+		SuperFrogTileAttr.Coin:				# 08 Coin
+			pass
+		SuperFrogTileAttr.SecretCoin:		# 09 "Secret" coin
+			pass
+		SuperFrogTileAttr.Enemy06:			# 12 Enemy 6
+			pass
+		SuperFrogTileAttr.Enemy07:			# 13 Enemy 7
+			pass
+		SuperFrogTileAttr.Enemy09:			# 15 Enemy 9
+			pass
+		SuperFrogTileAttr.Enemy12:			# 18 Enemy 12
+			pass
+		SuperFrogTileAttr.LevelExitMark:	# 29 Level exit X image
+			pass
+		SuperFrogTileAttr.StopEnemies:		# 37 Stop walking enemies
+			pass
+		SuperFrogTileAttr.CoinDispenser:	# 45 Coin dispenser (jump to get coins)
 			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
-		SuperFrogTileAttr.Pickup:		# 55 This tile can be picked up
+		SuperFrogTileAttr.SecretPassage:	# 38 Secret passage
 			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
-		SuperFrogTileAttr.Impassible:	# 61 Impassible
+		SuperFrogTileAttr.PlayerStart:		# 53 Player start
+			pass
+		SuperFrogTileAttr.LevelExit:		# 54 Level exit
+			pass
+		SuperFrogTileAttr.Pickup:			# 55 This tile can be picked up
+			pass
+		SuperFrogTileAttr.Impassible:		# 61 Impassible
 			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
-		SuperFrogTileAttr.WalkOn:		# 63 These tiles can be walked upon
+		SuperFrogTileAttr.PassFromBelow:	# 62 Player can pass these tiles from below
+			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+		SuperFrogTileAttr.WalkOn:			# 63 These tiles can be walked upon
 			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
 		_:
 			print_debug("TileID:", tID ," Unhandeled attribute:", attr)
@@ -367,7 +401,7 @@ func createTileMap(name:String, tileSize:int, ts:TileSet, cbm:BitMap, cbmEpsilon
 		var altID:int = 0
 		# check different attribute in TileMap from default in TileSet, for alternative tiles
 		if mapAttr != defAttr:
-			print_debug("Different attribute tile:", tID, " TileMap:", mapAttr, " TileSet:", defAttr)
+			#print_debug("Different attribute tile:", tID, " TileMap:", mapAttr, " TileSet:", defAttr)
 			if altTiles.has(tID):
 				var altAttr:Dictionary = altTiles.get(tID)
 				if altAttr.has(mapAttr):
