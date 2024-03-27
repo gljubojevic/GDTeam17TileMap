@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://dgh2d6loyu62p"]
 
-[ext_resource type="PackedScene" uid="uid://bivqwuvp0nc8f" path="res://Level01/L1MA1.t7mp" id="1"]
-[ext_resource type="PackedScene" uid="uid://npome1u236r3" path="res://Character/Hero.tscn" id="2"]
+[ext_resource type="PackedScene" uid="uid://bivqwuvp0nc8f" path="res://SuperFrog/Level01/L1MA1.t7mp" id="1"]
+[ext_resource type="PackedScene" uid="uid://npome1u236r3" path="res://SuperFrog/Character/Hero.tscn" id="2"]
 
 [node name="L1MA1" instance=ExtResource("1")]
 

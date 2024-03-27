@@ -1,7 +1,7 @@
 [gd_scene load_steps=19 format=3 uid="uid://npome1u236r3"]
 
-[ext_resource type="Texture2D" uid="uid://dokf0l3gsbj1h" path="res://Character/HERO2.png" id="1"]
-[ext_resource type="Script" path="res://Character/Hero.gd" id="2"]
+[ext_resource type="Texture2D" uid="uid://dokf0l3gsbj1h" path="res://SuperFrog/Character/HERO2.png" id="1"]
+[ext_resource type="Script" path="res://SuperFrog/Character/Hero.gd" id="2"]
 
 [sub_resource type="RectangleShape2D" id="1"]
 size = Vector2(32, 48)

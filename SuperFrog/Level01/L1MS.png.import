@@ -1,0 +1,16 @@
+[remap]
+
+importer="bitmap"
+type="BitMap"
+uid="uid://io341tlqmvfs"
+path="res://.godot/imported/L1MS.png-5db874a84243e4592024f2dcc697e89d.res"
+
+[deps]
+
+source_file="res://SuperFrog/Level01/L1MS.png"
+dest_files=["res://.godot/imported/L1MS.png-5db874a84243e4592024f2dcc697e89d.res"]
+
+[params]
+
+create_from=0
+threshold=0.5
