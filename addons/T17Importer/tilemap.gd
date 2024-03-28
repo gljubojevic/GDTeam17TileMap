@@ -306,57 +306,117 @@ func tileAttrSuperFrog(tID:int, attr:int, td:TileData, cbm:BitMap, cbmEpsilon:fl
 	match attr:
 		SuperFrogTileAttr.Nothing:
 			pass
-		SuperFrogTileAttr.Enemy01:			# 01 Enemy 1 or Witch boss
+		SuperFrogTileAttr.Enemy01:				# 01 Enemy 1 or Witch boss
 			pass
-		SuperFrogTileAttr.Enemy02:			# 02 Enemy 2
+		SuperFrogTileAttr.Enemy02:				# 02 Enemy 2
 			pass
-		SuperFrogTileAttr.Enemy03:			# 03 Enemy 3
+		SuperFrogTileAttr.Enemy03:				# 03 Enemy 3
 			pass
-		SuperFrogTileAttr.JumpPad1:			# 04 Jumppad type 1
+		SuperFrogTileAttr.JumpPad1:				# 04 Jumppad type 1
 			pass
-		SuperFrogTileAttr.JumpPad2:			# 05 Jumppad type 2 (other background)
+		SuperFrogTileAttr.JumpPad2:				# 05 Jumppad type 2 (other background)
 			pass
-		SuperFrogTileAttr.Lethal:			# 06 Lethal (spikes, fire, etc.)
+		SuperFrogTileAttr.Lethal:				# 06 Lethal (spikes, fire, etc.)
 			pass
-		SuperFrogTileAttr.Coin:				# 08 Coin
+		SuperFrogTileAttr.JumpPadSideways:		# 07 Jumppad sideways
 			pass
-		SuperFrogTileAttr.SecretCoin:		# 09 "Secret" coin
+		SuperFrogTileAttr.Coin:					# 08 Coin
 			pass
-		SuperFrogTileAttr.Enemy04:			# 10 Enemy 4
+		SuperFrogTileAttr.SecretCoin:			# 09 "Secret" coin
 			pass
-		SuperFrogTileAttr.Enemy05:			# 11 Enemy 5
+		SuperFrogTileAttr.Enemy04:				# 10 Enemy 4
 			pass
-		SuperFrogTileAttr.Enemy06:			# 12 Enemy 6
+		SuperFrogTileAttr.Enemy05:				# 11 Enemy 5
 			pass
-		SuperFrogTileAttr.Enemy07:			# 13 Enemy 7
+		SuperFrogTileAttr.Enemy06:				# 12 Enemy 6
 			pass
-		SuperFrogTileAttr.Enemy09:			# 15 Enemy 9
+		SuperFrogTileAttr.Enemy07:				# 13 Enemy 7
 			pass
-		SuperFrogTileAttr.Enemy10:			# 16 Enemy 10
+		SuperFrogTileAttr.Enemy08:				# 14 Enemy 8
 			pass
-		SuperFrogTileAttr.Enemy11:			# 17 Enemy 11
+		SuperFrogTileAttr.Enemy09:				# 15 Enemy 9
 			pass
-		SuperFrogTileAttr.Enemy12:			# 18 Enemy 12
+		SuperFrogTileAttr.Enemy10:				# 16 Enemy 10
 			pass
-		SuperFrogTileAttr.LevelExitMark:	# 29 Level exit X image
+		SuperFrogTileAttr.Enemy11:				# 17 Enemy 11
 			pass
-		SuperFrogTileAttr.StopEnemies:		# 37 Stop walking enemies
+		SuperFrogTileAttr.Enemy12:				# 18 Enemy 12
 			pass
-		SuperFrogTileAttr.CoinDispenser:	# 45 Coin dispenser (jump to get coins)
+		SuperFrogTileAttr.Enemy13:				# 19 Enemy 13
+			pass
+		SuperFrogTileAttr.Enemy14:				# 20 Enemy 14
+			pass
+		SuperFrogTileAttr.Enemy15:				# 21 Enemy 15
+			pass
+		SuperFrogTileAttr.Enemy16:				# 22 Enemy 16
+			pass
+		SuperFrogTileAttr.Enemy17:				# 23 Enemy 17
+			pass
+		SuperFrogTileAttr.Enemy18:				# 24 Enemy 18
+			pass
+		SuperFrogTileAttr.Enemy19:				# 25 Enemy 19
+			pass
+		SuperFrogTileAttr.Enemy20:				# 26 Enemy 20
+			pass
+		SuperFrogTileAttr.Enemy21:				# 27 Enemy 21
+			pass
+		SuperFrogTileAttr.Enemy22:				# 28 Enemy 22
+			pass
+		SuperFrogTileAttr.LevelExitMark:		# 29 Level exit X image
+			pass
+		SuperFrogTileAttr.Unused30:				# 30 Not used, TODO: L3MA4
+			pass
+		SuperFrogTileAttr.Unused31:				# 31 Not used, TODO: L3MA4
+			pass
+		SuperFrogTileAttr.Unknown32:			# 32 Unknown, used once in w2l3, leftover?
+			pass
+		SuperFrogTileAttr.Retracting:			# 36 Retracting platform (not in world 4)
 			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
-		SuperFrogTileAttr.SecretPassage:	# 38 Secret passage
-			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
-		SuperFrogTileAttr.PlayerStart:		# 53 Player start
+		SuperFrogTileAttr.StopEnemies:			# 37 Stop walking enemies
 			pass
-		SuperFrogTileAttr.LevelExit:		# 54 Level exit
-			pass
-		SuperFrogTileAttr.Pickup:			# 55 This tile can be picked up
-			pass
-		SuperFrogTileAttr.Impassible:		# 61 Impassible
+		SuperFrogTileAttr.SecretPassage:		# 38 Secret passage
 			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
-		SuperFrogTileAttr.PassFromBelow:	# 62 Player can pass these tiles from below
+		SuperFrogTileAttr.SuckingEntrance:		# 39 Big sucking thing entrance
+			pass
+		SuperFrogTileAttr.SuckingSuctionV:		# 40 Big sucking thing suction vertical
+			pass
+		SuperFrogTileAttr.SuckingSuctionVStp:	# 41 Big sucking thing stop (vertical)
+			pass
+		SuperFrogTileAttr.SuckingSuctionH:		# 42 Big sucking thing suction horizontal
+			pass
+		SuperFrogTileAttr.SuckingSuctionHStp:	# 43 Big sucking thing stop (horizontal)
+			pass
+		SuperFrogTileAttr.ThrusterPad:			# 44 Thruster pad
+			pass
+		SuperFrogTileAttr.CoinDispenser:		# 45 Coin dispenser (jump to get coins)
 			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
-		SuperFrogTileAttr.WalkOn:			# 63 These tiles can be walked upon
+		SuperFrogTileAttr.WetPushLeft:			# 46 Wet push left
+			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+		SuperFrogTileAttr.WetPushRight:			# 47 Wet push right
+			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+		SuperFrogTileAttr.SwitchDoor1:			# 48 Switch\door combo 1
+			pass
+		SuperFrogTileAttr.SwitchDoor2:			# 49 Switch\door combo 2
+			pass
+		SuperFrogTileAttr.SwitchDoor3:			# 50 Switch\door combo 3
+			pass
+		SuperFrogTileAttr.SwitchDoor4:			# 51 Switch\door combo 4
+			pass
+		SuperFrogTileAttr.PlayerStart:			# 53 Player start
+			pass
+		SuperFrogTileAttr.LevelExit:			# 54 Level exit
+			pass
+		SuperFrogTileAttr.Pickup:				# 55 This tile can be picked up
+			pass
+		SuperFrogTileAttr.Slippery:				# 56 Slimy\wet\icy
+			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+		SuperFrogTileAttr.Water:				# 57 Water (swimmable)
+			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+		SuperFrogTileAttr.Impassible:			# 61 Impassible
+			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+		SuperFrogTileAttr.PassFromBelow:		# 62 Player can pass these tiles from below
+			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+		SuperFrogTileAttr.WalkOn:				# 63 These tiles can be walked upon
 			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
 		_:
 			print_debug("TileID:", tID ," Unhandeled attribute:", attr)

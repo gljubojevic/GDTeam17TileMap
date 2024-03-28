@@ -1,0 +1,16 @@
+[remap]
+
+importer="bitmap"
+type="BitMap"
+uid="uid://d1rhdrgcgdt13"
+path="res://.godot/imported/L6MS.png-b67afe8de292295b5121b94a8b5b8af6.res"
+
+[deps]
+
+source_file="res://SuperFrog/Level06/L6MS.png"
+dest_files=["res://.godot/imported/L6MS.png-b67afe8de292295b5121b94a8b5b8af6.res"]
+
+[params]
+
+create_from=0
+threshold=0.5

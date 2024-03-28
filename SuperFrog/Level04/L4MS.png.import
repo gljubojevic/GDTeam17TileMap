@@ -1,0 +1,16 @@
+[remap]
+
+importer="bitmap"
+type="BitMap"
+uid="uid://bj0wmfafyo8dw"
+path="res://.godot/imported/L4MS.png-1821759f112289166840b963324561ac.res"
+
+[deps]
+
+source_file="res://SuperFrog/Level04/L4MS.png"
+dest_files=["res://.godot/imported/L4MS.png-1821759f112289166840b963324561ac.res"]
+
+[params]
+
+create_from=0
+threshold=0.5
