@@ -22,6 +22,7 @@ Start:
 ;	xplode	AWA1	;Help screen 1 320x256x5
 ;	xplode	AWA2	;Help screen 2 320x256x5
 
+
 ;	xplode 	L1MA1	;Tilemap 1
 ;	xplode 	L1MA2	;Tilemap 2
 ;	xplode 	L1MA3	;Tilemap 3
@@ -32,7 +33,8 @@ Start:
 ;	xplode 	L1LP	;Loading 320x352x5, palette 32 colors, unknown data
 ;	xplode 	L1ET	;End title 320x256x5, palette 32 colors
 ;	xplode 	L1FX	;SoundFx unknown format, all worlds
-	xplode 	L1MS	;Tile masks 320x672x1
+;	xplode 	L1MS	;Tile masks 320x672x1
+
 
 ;	xplode 	L2MA1
 ;	xplode 	L2MA2
@@ -43,6 +45,8 @@ Start:
 ;	xplode 	L2MU
 ;	xplode 	L2LP
 ;	xplode 	L2ET
+;	xplode 	L2MS
+
 
 ;	xplode 	L3MA1
 ;	xplode 	L3MA2
@@ -53,6 +57,8 @@ Start:
 ;	xplode 	L3MU
 ;	xplode 	L3LP
 ;	xplode 	L3ET
+;	xplode 	L3MS
+
 
 ;	xplode 	L4MA1
 ;	xplode 	L4MA2
@@ -63,6 +69,8 @@ Start:
 ;	xplode 	L4MU
 ;	xplode 	L4LP
 ;	xplode 	L4ET
+;	xplode 	L4MS
+
 
 ;	xplode 	L5MA1
 ;	xplode 	L5MA2
@@ -73,16 +81,20 @@ Start:
 ;	xplode 	L5MU
 ;	xplode 	L5LP
 ;	xplode 	L5ET
+;	xplode 	L5MS
+
 
 ;	xplode 	L6MA1
 ;	xplode 	L6MA2
 ;	xplode 	L6MA3
-;	xplode 	L6MA4
+	xplode 	L6MA4
 ;	tpic	L6BM
 ;	xplode 	L6BO
 ;	xplode 	L6MU
 ;	xplode 	L6LP
 ;	xplode 	L6ET
+;	xplode 	L6MS
+
 
 ;	xplode 	LBMA
 ;	tpic	LBBM
@@ -90,6 +102,7 @@ Start:
 ;	xplode 	LBMU
 ;	xplode 	LBLP
 ;	xplode 	LBFX	;SoundFx special
+
 
 ;	xplode 	LWMA1
 ;	tpic	LWBM
@@ -254,11 +267,11 @@ TImg_E:	dc.b	"END!"
 ;	AUTO J\
 ;	AUTO WB Sources:Sources7/superfrog/data/L1FX\L1FX\L1FX_E\
 
-L1MS:	dcb.b	$6900,0	;
-L1MS_E:dc.b	"END!"
-	AUTO RB Transfer:SuperFrogCD32/data/L1MS\L1MS\L1MS_E\
-	AUTO J\
-	AUTO WB Sources:Sources7/superfrog/data/L1MS\L1MS\L1MS_E\
+;L1MS:	dcb.b	$6900,0	;
+;L1MS_E:dc.b	"END!"
+;	AUTO RB Transfer:SuperFrogCD32/data/L1MS\L1MS\L1MS_E\
+;	AUTO J\
+;	AUTO WB Sources:Sources7/superfrog/data/L1MS\L1MS\L1MS_E\
 
 
 ;Level 2 ----------------------------------------
@@ -319,6 +332,12 @@ L1MS_E:dc.b	"END!"
 ;	AUTO WB Sources:Sources7/superfrog/data/L2ET\L2ET\L2ET+51200\
 ;	AUTO WB Sources:Sources7/superfrog/data/L2ET.pal\L2ET+51200\L2ET_E\
 
+;L2MS:	dcb.b	$6900,0	;
+;L2MS_E:dc.b	"END!"
+;	AUTO RB Transfer:SuperFrogCD32/data/L2MS\L2MS\L2MS_E\
+;	AUTO J\
+;	AUTO WB Sources:Sources7/superfrog/data/L2MS\L2MS\L2MS_E\
+
 
 ;Level 3 ----------------------------------------
 ;L3MA1:	dcb.b	$d154,0
@@ -377,6 +396,12 @@ L1MS_E:dc.b	"END!"
 ;	AUTO J\
 ;	AUTO WB Sources:Sources7/superfrog/data/L3ET\L3ET\L3ET+51200\
 ;	AUTO WB Sources:Sources7/superfrog/data/L3ET.pal\L3ET+51200\L3ET_E\
+
+;L3MS:	dcb.b	$6900,0	;
+;L3MS_E:dc.b	"END!"
+;	AUTO RB Transfer:SuperFrogCD32/data/L3MS\L3MS\L3MS_E\
+;	AUTO J\
+;	AUTO WB Sources:Sources7/superfrog/data/L3MS\L3MS\L3MS_E\
 
 
 ;Level 4 ----------------------------------------
@@ -437,6 +462,12 @@ L1MS_E:dc.b	"END!"
 ;	AUTO WB Sources:Sources7/superfrog/data/L4ET\L4ET\L4ET+51200\
 ;	AUTO WB Sources:Sources7/superfrog/data/L4ET.pal\L4ET+51200\L4ET_E\
 
+;L4MS:	dcb.b	$6900,0	;
+;L4MS_E:dc.b	"END!"
+;	AUTO RB Transfer:SuperFrogCD32/data/L4MS\L4MS\L4MS_E\
+;	AUTO J\
+;	AUTO WB Sources:Sources7/superfrog/data/L4MS\L4MS\L4MS_E\
+
 
 ;Level 5 ----------------------------------------
 ;L5MA1:	dcb.b	$d154,0
@@ -496,6 +527,12 @@ L1MS_E:dc.b	"END!"
 ;	AUTO WB Sources:Sources7/superfrog/data/L5ET\L5ET\L5ET+51200\
 ;	AUTO WB Sources:Sources7/superfrog/data/L5ET.pal\L5ET+51200\L5ET_E\
 
+;L5MS:	dcb.b	$6900,0	;
+;L5MS_E:dc.b	"END!"
+;	AUTO RB Transfer:SuperFrogCD32/data/L5MS\L5MS\L5MS_E\
+;	AUTO J\
+;	AUTO WB Sources:Sources7/superfrog/data/L5MS\L5MS\L5MS_E\
+
 
 ;Level 6 ----------------------------------------
 ;L6MA1:	dcb.b	$d154,0
@@ -517,11 +554,11 @@ L1MS_E:dc.b	"END!"
 ;	AUTO J\
 ;	AUTO WB Sources:Sources7/superfrog/data/L6MA3\L6MA3\L6MA3_E\
 
-;L6MA4:	dcb.b	$d154,0
-;L6MA4_E:dc.b	"END!"
-;	AUTO RB Transfer:SuperFrogCD32/data/L6MA4\L6MA4\L6MA4_E\
-;	AUTO J\
-;	AUTO WB Sources:Sources7/superfrog/data/L6MA4\L6MA4\L6MA4_E\
+L6MA4:	dcb.b	$d154,0
+L6MA4_E:dc.b	"END!"
+	AUTO RB Transfer:SuperFrogCD32/data/L6MA4\L6MA4\L6MA4_E\
+	AUTO J\
+	AUTO WB Sources:Sources7/superfrog/data/L6MA4\L6MA4\L6MA4_E\
 
 ;L6BM:	dcb.b	$20d00,0
 ;L6BM_E:dc.b	"END!"
@@ -554,6 +591,13 @@ L1MS_E:dc.b	"END!"
 ;	AUTO J\
 ;	AUTO WB Sources:Sources7/superfrog/data/L6ET\L6ET\L6ET+51200\
 ;	AUTO WB Sources:Sources7/superfrog/data/L6ET.pal\L6ET+51200\L6ET_E\
+
+;L6MS:	dcb.b	$6900,0	;
+;L6MS_E:dc.b	"END!"
+;	AUTO RB Transfer:SuperFrogCD32/data/L6MS\L6MS\L6MS_E\
+;	AUTO J\
+;	AUTO WB Sources:Sources7/superfrog/data/L6MS\L6MS\L6MS_E\
+
 
 ;Level B ----------------------------------------
 ;LBMA:	dcb.b	$d154,0
