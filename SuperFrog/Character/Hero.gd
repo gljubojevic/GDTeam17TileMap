@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
 const GRAVITY = 200.0
-const WALK_SPEED = 200
+const WALK_SPEED = 150
 
 #var velocity = Vector2()
 

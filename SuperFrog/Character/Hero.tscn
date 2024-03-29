@@ -3,8 +3,7 @@
 [ext_resource type="Texture2D" uid="uid://dokf0l3gsbj1h" path="res://SuperFrog/Character/HERO2.png" id="1"]
 [ext_resource type="Script" path="res://SuperFrog/Character/Hero.gd" id="2"]
 
-[sub_resource type="RectangleShape2D" id="1"]
-size = Vector2(32, 48)
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_esebf"]
 
 [sub_resource type="AtlasTexture" id="9"]
 atlas = ExtResource("1")
@@ -131,8 +130,8 @@ animations = [{
 script = ExtResource("2")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(16, -24)
-shape = SubResource("1")
+position = Vector2(16, -16)
+shape = SubResource("CapsuleShape2D_esebf")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("16")

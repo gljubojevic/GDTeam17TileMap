@@ -15,4 +15,4 @@ dest_files=["res://.godot/imported/L3MA2.t7mp-febba337eb707a22977a0af88583ee23.t
 TileSize=16
 TileSetTexture="Default"
 TileSetCollision="Default"
-CollisionBitmapEpsilon=0.9
+CollisionBitmapEpsilon=0.8

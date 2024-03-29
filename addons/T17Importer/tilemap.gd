@@ -128,7 +128,7 @@ func _get_import_options(path, preset_index):
 				},
 				{
 					"name": "CollisionBitmapEpsilon",
-					"default_value": 0.9,
+					"default_value": 0.8,
 					"property_hint": PROPERTY_HINT_RANGE,
 					"hint_string": "0,3"
 				}
