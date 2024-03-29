@@ -135,5 +135,5 @@ shape = SubResource("CapsuleShape2D_esebf")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("16")
-animation = &"Right_Run"
+animation = &"Right_Idle"
 offset = Vector2(16, -24)
