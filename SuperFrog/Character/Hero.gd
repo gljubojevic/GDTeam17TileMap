@@ -9,9 +9,22 @@ func _ready():
 	# In the case of a 2D platformer, in Godot, upward is negative y, which translates to -1 as a normal.
 	#set_up_direction(Vector2(0, -1))
 	set_floor_stop_on_slope_enabled(false)
-	set_floor_constant_speed_enabled(true)
-	#set_floor_snap_length(1)
-	pass
+	set_floor_constant_speed_enabled(false)
+	set_floor_max_angle(deg_to_rad(80))
+	set_floor_snap_length(5)
+	# setup camera
+	var tm:TileMap = get_parent()
+	limitCameraToTileMap(tm, $Camera2D)
+
+func limitCameraToTileMap(tm:TileMap, c:Camera2D):
+	print_debug("Limiting camera to TileMap: ",tm.name)
+	var ts:TileSet = tm.get_tileset();
+	var tileSize:Vector2i = ts.get_tile_size()
+	var tmSize = tm.get_used_rect()
+	c.set_limit(SIDE_LEFT, tmSize.position.x * tileSize.x)
+	c.set_limit(SIDE_TOP, tmSize.position.y * tileSize.y)
+	c.set_limit(SIDE_RIGHT, tmSize.size.x * tileSize.x)
+	c.set_limit(SIDE_BOTTOM, tmSize.size.y * tileSize.y)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
