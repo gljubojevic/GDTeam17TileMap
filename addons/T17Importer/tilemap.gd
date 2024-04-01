@@ -272,7 +272,7 @@ func createTileSetAtlasSource(tx: Texture2D, tileSize:int):
 			tas.create_tile(Vector2i(x,y))
 	return tas
 
-func addTileCollisionFromBitMap(tID:int, td:TileData, cbm:BitMap, cbmEpsilon:float, tileSize:int, tilePos:Vector2i):
+func addTileCollisionFromBitMap(tID:int, td:TileData, cbm:BitMap, cbmEpsilon:float, tileSize:int, tilePos:Vector2i, oneWay:bool):
 	var tbm:BitMap = BitMap.new()
 	tbm.create(Vector2i(tileSize, tileSize))
 	var pos:Vector2i = tilePos * tileSize
@@ -298,6 +298,7 @@ func addTileCollisionFromBitMap(tID:int, td:TileData, cbm:BitMap, cbmEpsilon:flo
 	for idx in collision.size():
 		td.add_collision_polygon(0)
 		td.set_collision_polygon_points(0, idx, collision[idx] * collisionTransform)
+		td.set_collision_polygon_one_way(0, idx, oneWay)
 
 func tileAttrSuperFrog(tID:int, attr:int, td:TileData, cbm:BitMap, cbmEpsilon:float, tileSize:int, tilePos:Vector2i):
 	# custom data from map
@@ -317,7 +318,7 @@ func tileAttrSuperFrog(tID:int, attr:int, td:TileData, cbm:BitMap, cbmEpsilon:fl
 		SuperFrogTileAttr.JumpPad2:				# 05 Jumppad type 2 (other background)
 			pass
 		SuperFrogTileAttr.Lethal:				# 06 Lethal (spikes, fire, etc.)
-			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos, false)
 		SuperFrogTileAttr.JumpPadSideways:		# 07 Jumppad sideways
 			pass
 		SuperFrogTileAttr.Coin:					# 08 Coin
@@ -371,11 +372,11 @@ func tileAttrSuperFrog(tID:int, attr:int, td:TileData, cbm:BitMap, cbmEpsilon:fl
 		SuperFrogTileAttr.Unknown32:			# 32 Unknown, used once in w2l3, leftover?
 			pass
 		SuperFrogTileAttr.Retracting:			# 36 Retracting platform (not in world 4)
-			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos, true)
 		SuperFrogTileAttr.StopEnemies:			# 37 Stop walking enemies
 			pass
 		SuperFrogTileAttr.SecretPassage:		# 38 Secret passage
-			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos, false)
 		SuperFrogTileAttr.SuckingEntrance:		# 39 Big sucking thing entrance
 			pass
 		SuperFrogTileAttr.SuckingSuctionV:		# 40 Big sucking thing suction vertical
@@ -389,11 +390,11 @@ func tileAttrSuperFrog(tID:int, attr:int, td:TileData, cbm:BitMap, cbmEpsilon:fl
 		SuperFrogTileAttr.ThrusterPad:			# 44 Thruster pad
 			pass
 		SuperFrogTileAttr.CoinDispenser:		# 45 Coin dispenser (jump to get coins)
-			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+			pass
 		SuperFrogTileAttr.WetPushLeft:			# 46 Wet push left
-			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos, false)
 		SuperFrogTileAttr.WetPushRight:			# 47 Wet push right
-			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos, false)
 		SuperFrogTileAttr.SwitchDoor1:			# 48 Switch\door combo 1
 			pass
 		SuperFrogTileAttr.SwitchDoor2:			# 49 Switch\door combo 2
@@ -409,15 +410,15 @@ func tileAttrSuperFrog(tID:int, attr:int, td:TileData, cbm:BitMap, cbmEpsilon:fl
 		SuperFrogTileAttr.Pickup:				# 55 This tile can be picked up
 			pass
 		SuperFrogTileAttr.Slippery:				# 56 Slimy\wet\icy
-			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos, false)
 		SuperFrogTileAttr.Water:				# 57 Water (swimmable)
-			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos, false)
 		SuperFrogTileAttr.Impassible:			# 61 Impassible
-			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos, false)
 		SuperFrogTileAttr.PassFromBelow:		# 62 Player can pass these tiles from below
-			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos, true)
 		SuperFrogTileAttr.WalkOn:				# 63 These tiles can be walked upon
-			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos, true)
 		_:
 			print_debug("TileID:", tID ," Unhandeled attribute:", attr)
 
