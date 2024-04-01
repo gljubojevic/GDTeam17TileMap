@@ -313,9 +313,9 @@ func tileAttrSuperFrog(tID:int, attr:int, td:TileData, cbm:BitMap, cbmEpsilon:fl
 		SuperFrogTileAttr.Enemy03:				# 03 Enemy 3
 			pass
 		SuperFrogTileAttr.JumpPad1:				# 04 Jumppad type 1
-			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+			pass
 		SuperFrogTileAttr.JumpPad2:				# 05 Jumppad type 2 (other background)
-			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
+			pass
 		SuperFrogTileAttr.Lethal:				# 06 Lethal (spikes, fire, etc.)
 			addTileCollisionFromBitMap(tID, td, cbm, cbmEpsilon, tileSize, tilePos)
 		SuperFrogTileAttr.JumpPadSideways:		# 07 Jumppad sideways
