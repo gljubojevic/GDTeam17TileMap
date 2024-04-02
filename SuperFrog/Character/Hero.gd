@@ -12,19 +12,34 @@ func _ready():
 	set_floor_constant_speed_enabled(false)
 	set_floor_max_angle(deg_to_rad(80))
 	set_floor_snap_length(5)
-	# setup camera
+	# TileMap details
 	var tm:TileMap = get_parent()
-	limitCameraToTileMap(tm, $Camera2D)
+	var tmSize:Rect2i = tm.get_used_rect()
+	var tileSize:Vector2i = getTileSize(tm)
+	# setup player and camera
+	limitCameraToTileMap(tmSize, tileSize, $Camera2D)
+	positionPlayer(tm, tmSize, tileSize)
 
-func limitCameraToTileMap(tm:TileMap, c:Camera2D):
-	print_debug("Limiting camera to TileMap: ",tm.name)
+func getTileSize(tm:TileMap):
 	var ts:TileSet = tm.get_tileset();
-	var tileSize:Vector2i = ts.get_tile_size()
-	var tmSize = tm.get_used_rect()
+	return ts.get_tile_size()
+
+func limitCameraToTileMap(tmSize:Rect2i, tileSize:Vector2i, c:Camera2D):
 	c.set_limit(SIDE_LEFT, tmSize.position.x * tileSize.x)
 	c.set_limit(SIDE_TOP, tmSize.position.y * tileSize.y)
 	c.set_limit(SIDE_RIGHT, tmSize.size.x * tileSize.x)
 	c.set_limit(SIDE_BOTTOM, tmSize.size.y * tileSize.y)
+
+func positionPlayer(tm:TileMap, tmSize:Rect2i, tileSize:Vector2i):
+	var start = Vector2i(0,0)
+	for y in tmSize.size.y:
+		for x in tmSize.size.x:
+			var td = tm.get_cell_tile_data(0, Vector2i(x,y))
+			var attr:int = td.get_custom_data("DefaultAttributes")
+			if attr == 53:
+				start = Vector2i(x,y)
+	position = start * tileSize
+	print_debug("Player start:", position)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
