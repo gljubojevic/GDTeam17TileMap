@@ -80,7 +80,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: web
-          path: build/web
+          path: build/Web
       - name: Install rsync 📚
         run: |
           apt-get update && apt-get install -y rsync
