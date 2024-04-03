@@ -6,7 +6,7 @@
 # Godot-specific ignores
 .import/
 export.cfg
-export_presets.cfg
+#export_presets.cfg
 
 # Imported translations (automatically generated from CSV files)
 *.translation
@@ -15,3 +15,11 @@ export_presets.cfg
 .mono/
 data_*/
 mono_crash.*.json
+
+# Build folders
+build/Mac/*
+!build/Mac/README.md
+build/Web/*
+!build/Web/README.md
+build/Win/*
+!build/Win/README.md
