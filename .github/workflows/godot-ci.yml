@@ -4,7 +4,7 @@ on: push
 env:
   GODOT_VERSION: 4.2.1
   EXPORT_NAME: Team17TileMapDemo
-  PROJECT_PATH: GDTeam17TileMap
+  #PROJECT_PATH: GDTeam17TileMap
 
 jobs:
   export-windows:
@@ -23,14 +23,14 @@ jobs:
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
       - name: Windows Build
         run: |
-          mkdir -v -p build/windows
-          cd $PROJECT_PATH
-          godot --headless --verbose --export-release "Windows" ../build/windows/$EXPORT_NAME.exe
+          mkdir -v -p build/Win
+          #cd $PROJECT_PATH
+          godot --headless --verbose --export-release "Windows" ./build/Win/$EXPORT_NAME.exe
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
           name: windows
-          path: build/windows
+          path: build/Win
 
 #  export-linux:
 #    name: Linux Export
@@ -49,8 +49,8 @@ jobs:
 #      - name: Linux Build
 #        run: |
 #          mkdir -v -p build/linux
-#          cd $PROJECT_PATH
-#          godot --headless --verbose --export-release "Linux/X11" ../build/linux/$EXPORT_NAME.x86_64
+#          #cd $PROJECT_PATH
+#          godot --headless --verbose --export-release "Linux/X11" ./build/linux/$EXPORT_NAME.x86_64
 #      - name: Upload Artifact
 #        uses: actions/upload-artifact@v1
 #        with:
@@ -73,9 +73,9 @@ jobs:
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
       - name: Web Build
         run: |
-          mkdir -v -p build/web
-          cd $PROJECT_PATH
-          godot --headless --verbose --export-release "Web" ../build/web/index.html
+          mkdir -v -p build/Web
+          #cd $PROJECT_PATH
+          godot --headless --verbose --export-release "Web" ./build/Web/index.html
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
@@ -88,7 +88,7 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@releases/v4
         with:
           branch: gh-pages # The branch the action should deploy to.
-          folder: build/web # The folder the action should deploy.
+          folder: build/Web # The folder the action should deploy.
 
   export-mac:
     name: Mac Export
@@ -106,11 +106,11 @@ jobs:
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
       - name: Mac Build
         run: |
-          mkdir -v -p build/mac
-          cd $PROJECT_PATH
-          godot --headless --verbose --export-release "MacOS" ../build/mac/$EXPORT_NAME.zip
+          mkdir -v -p build/Mac
+          #cd $PROJECT_PATH
+          godot --headless --verbose --export-release "MacOS" ./build/Mac/$EXPORT_NAME.zip
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
           name: mac
-          path: build/mac
+          path: build/Mac
