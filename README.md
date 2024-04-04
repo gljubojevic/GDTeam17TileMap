@@ -9,6 +9,15 @@ Games using map format:
 SuperFrog Amiga long play video
 https://www.youtube.com/watch?v=V1R7Pd329Bc
 
+Imported SuperFrog map example is hosted on project GitHub pages:  
+https://gljubojevic.github.io/GDTeam17TileMap/
+
+Controls:
+- Arrow Left - Move left
+- Arrow Right - Move right
+- Arrow Up - Jump
+
+
 Game assets are located in `data` folder, compressed using [Imploder 4.0](https://aminet.net/package/util/pack/imploder-4.0).  
 There are 6 levels (worlds) in game, assets files per level have prefix "L" and level number e.g. "L1".  
 Each file has suffix depending on purpose of file:
