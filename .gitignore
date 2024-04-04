@@ -21,5 +21,6 @@ build/Mac/*
 !build/Mac/README.md
 build/Web/*
 !build/Web/README.md
+!build/Web/coi-serviceworker.js
 build/Win/*
 !build/Win/README.md

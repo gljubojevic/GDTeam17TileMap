@@ -38,3 +38,4 @@ Each file has suffix depending on purpose of file:
 - [Tiled - godot importer](https://github.com/Kiamo2/YATI/tree/main)
 - [Froggy - SuperFrog level editor](https://sourceforge.net/projects/superfrog/)
 - [godot-ci - build on github](https://github.com/abarichello/godot-ci)
+- [coi-serviceworker - to alow hosting on GitHub Pages without COOP and COEP headers](https://github.com/gzuidhof/coi-serviceworker)
