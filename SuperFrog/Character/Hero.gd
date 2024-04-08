@@ -9,7 +9,7 @@ func _ready():
 	# In the case of a 2D platformer, in Godot, upward is negative y, which translates to -1 as a normal.
 	#set_up_direction(Vector2(0, -1))
 	set_floor_stop_on_slope_enabled(false)
-	set_floor_constant_speed_enabled(false)
+	set_floor_constant_speed_enabled(true)
 	set_floor_max_angle(deg_to_rad(80))
 	set_floor_snap_length(5)
 	# TileMap details
@@ -19,6 +19,8 @@ func _ready():
 	# setup player and camera
 	limitCameraToTileMap(tmSize, tileSize, $Camera2D)
 	positionPlayer(tm, tmSize, tileSize)
+	# default is Flip H (looking right)
+	$AnimatedSprite2D.flip_h = true
 
 func getTileSize(tm:TileMap):
 	var ts:TileSet = tm.get_tileset();
@@ -46,19 +48,43 @@ func positionPlayer(tm:TileMap, tmSize:Rect2i, tileSize:Vector2i):
 #	pass
 
 func _physics_process(delta):
-	# handle left/right
-	if Input.is_action_pressed("ui_left"):
-		velocity.x = -WALK_SPEED
-	elif Input.is_action_pressed("ui_right"):
-		velocity.x =  WALK_SPEED
+	if is_on_floor():
+		# handle left/right
+		if Input.is_action_pressed("ui_left"):
+			velocity.x = -WALK_SPEED
+			$AnimatedSprite2D.play("run")
+			$AnimatedSprite2D.flip_h = false
+		elif Input.is_action_pressed("ui_right"):
+			velocity.x =  WALK_SPEED
+			$AnimatedSprite2D.play("run")
+			$AnimatedSprite2D.flip_h = true
+		# handle jumping
+		elif Input.is_action_pressed("ui_up"):
+			velocity.y += -JUMP_SPEED
+			$AnimatedSprite2D.play("jump_small_up")
+		# handle stop
+		else:
+			if velocity.x != 0:
+				velocity.x = 0
+				#$AnimatedSprite2D.play("stop")
+			else:
+				$AnimatedSprite2D.play("idle")
 	else:
-		velocity.x = 0
-
-	# handle falling down
-	velocity.y += delta * GRAVITY
-	# handle jumping
-	if is_on_floor() and Input.is_action_pressed("ui_up"):
-		velocity.y += -JUMP_SPEED
+		# handle falling down
+		velocity.y += delta * GRAVITY
+		if Input.is_action_pressed("ui_left"):
+			velocity.x = -WALK_SPEED
+			#$AnimatedSprite2D.play("run")
+			$AnimatedSprite2D.flip_h = false
+		elif Input.is_action_pressed("ui_right"):
+			velocity.x =  WALK_SPEED
+			#$AnimatedSprite2D.play("run")
+			$AnimatedSprite2D.flip_h = true
+		else:
+			# check started to fall down
+			var lm = get_last_motion()
+			if lm.y <= 0.0 and velocity.y > 0.0: # moving down
+				$AnimatedSprite2D.play("jump_small_down")
 	
 	# We don't need to multiply velocity by delta because "move_and_slide" already takes delta time into account.
 	set_velocity(velocity)
